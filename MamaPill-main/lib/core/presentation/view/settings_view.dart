@@ -40,6 +40,9 @@ class SettingsView extends StatelessWidget {
 
   Container _accountSettings(UserProfile user, BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final username = user.username ?? 'User';
+    final email = user.email ?? 'No email';
+    
     return Container(
       color: AppColors.backgroundPrimary,
       padding: const EdgeInsets.all(12),
@@ -49,7 +52,7 @@ class SettingsView extends StatelessWidget {
             radius: AppSize.s24.r,
             backgroundColor: AppColors.primary.withOpacity(0.1),
             child: Text(
-              user.username![0].toUpperCase(),
+              username.isNotEmpty ? username[0].toUpperCase() : 'U',
               style: const TextStyle(
                 fontSize: 32,
                 fontWeight: FontWeight.bold,
@@ -61,8 +64,8 @@ class SettingsView extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(user.username!, style: textTheme.titleMedium),
-              Text(user.email!, style: textTheme.titleSmall),
+              Text(username, style: textTheme.titleMedium),
+              Text(email, style: textTheme.titleSmall),
             ],
           ),
         ],
