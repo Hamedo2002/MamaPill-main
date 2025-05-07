@@ -30,7 +30,7 @@ class MedicineFormCubit extends Cubit<MedicineFormState> {
 
   final List<String> timeIntervals = [
     for (int hour = 0; hour < 24; hour++)
-      for (int minute = 0; minute < 60; minute += 30)
+      for (int minute = 0; minute < 60; minute += 5)
         '${(hour % 12 == 0 ? 12 : hour % 12).toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')} ${hour < 12 ? 'AM' : 'PM'}',
   ];
 
