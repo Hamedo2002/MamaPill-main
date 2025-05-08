@@ -15,8 +15,6 @@ import 'package:mama_pill/core/utils/extensions.dart';
 import 'package:mama_pill/features/medicine/domain/entities/medicine_schedule.dart';
 import 'package:mama_pill/features/medicine/presentation/controller/medicine_form/cubit/medicine_form_cubit.dart';
 import 'package:mama_pill/features/notifications/presentation/controller/bloc/notification_bloc.dart';
-import 'package:mama_pill/features/notifications/domain/entities/notification.dart';
-import 'package:mama_pill/features/medicine/domain/entities/schedule.dart';
 
 class EditDispenserForm extends StatelessWidget {
   const EditDispenserForm({
@@ -37,7 +35,7 @@ class EditDispenserForm extends StatelessWidget {
       ],
       child: BlocListener<MedicineScheduleBloc, MedicineScheduleState>(
         listener: (context, state) {
-          if (state.status == RequestStatus.success) {
+          if (state.saveStatus == RequestStatus.success || state.deleteStatus == RequestStatus.success) {
             Navigator.pop(context);
           }
         },
@@ -45,8 +43,6 @@ class EditDispenserForm extends StatelessWidget {
           builder: (context, medicineFormState) {
             return BlocBuilder<MedicineScheduleBloc, MedicineScheduleState>(
                 builder: (context, medicineScheduleState) {
-              final MedicineScheduleBloc addPatientBloc =
-                  context.read<MedicineScheduleBloc>();
               final screenWidth = MediaQuery.of(context).size.width;
               return ConstrainedBox(
                 constraints: BoxConstraints(maxWidth: screenWidth * 0.95),
@@ -92,7 +88,9 @@ class EditDispenserForm extends StatelessWidget {
                             children: [
                               Expanded(
                                 flex: 1,
-                                child: CustomButton(
+                                child: medicineScheduleState.saveStatus == RequestStatus.loading
+                                    ? const CustomProgressIndicator()
+                                    : CustomButton(
                                   height: AppHeight.h40.h,
                                   lable: 'Save Changes',
                                   backgroundColor: AppColors.primary,
@@ -119,27 +117,13 @@ class EditDispenserForm extends StatelessWidget {
                                     medicineScheduleBloc.add(
                                       MedicineScheduleAdded(medicineSchedule: updatedMedicine)
                                     );
-                    
-                                    context.read<NotificationBloc>().add(
-                      WeeklyNotificationScheduled(
-                        notification: NotificationData(
-                          id: medicine.index ?? 0,
-                          title: 'Medicine Updated',
-                          body: 'Your medicine ${updatedMedicine.medicine} has been updated successfully',
-                          schedule: Schedule(
-                            days: updatedMedicine.schedule.days,
-                            times: updatedMedicine.schedule.times,
-                          ),
-                        )
-                      )
-                    );
                                   },
                                 ),
                               ),
                               SizedBox(width: 2.w),
                               Expanded(
                                 flex: 1,
-                                child: addPatientBloc.state.status == RequestStatus.loading
+                                child: medicineScheduleState.deleteStatus == RequestStatus.loading
                                     ? const CustomProgressIndicator()
                                     : _deleteMedicineScheduleButton(context),
                               ),

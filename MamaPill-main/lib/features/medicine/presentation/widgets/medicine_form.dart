@@ -40,7 +40,7 @@ class MedicineForm extends StatelessWidget {
       ],
       child: BlocListener<MedicineScheduleBloc, MedicineScheduleState>(
         listener: (context, state) {
-          if (state.status == RequestStatus.success) {
+          if (state.saveStatus == RequestStatus.success) {
             Navigator.pop(context);
           }
         },
@@ -64,7 +64,7 @@ class MedicineForm extends StatelessWidget {
                   ),
                   _weekdaysWidget(context),
                   _timeIntervalsWidget(context, medicineFormCubit, medicineFormState),
-                  medicineScheduleBloc.state.status == RequestStatus.loading
+                  medicineScheduleBloc.state.saveStatus == RequestStatus.loading
                       ? const CustomProgressIndicator()
                       : _addMedcineButton(context, patientId),
                 ],

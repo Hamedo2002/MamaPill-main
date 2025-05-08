@@ -1,6 +1,8 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:mama_pill/core/helpers/id_generator.dart';
 import 'package:mama_pill/core/helpers/time_zone_helper.dart';
+import 'package:mama_pill/features/notifications/presentation/pages/full_screen_notification_page.dart';
 import 'package:timezone/timezone.dart' as tz;
 
 class LocalNotificationServices {
@@ -23,10 +25,30 @@ class LocalNotificationServices {
       "channel name",
       importance: Importance.max,
       priority: Priority.high,
+      fullScreenIntent: true,
     );
-    const iOSPlatformChannel = DarwinNotificationDetails();
+    const iOSPlatformChannel = DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: true,
+    );
     return const NotificationDetails(
         android: androidPlatformChannel, iOS: iOSPlatformChannel);
+  }
+
+  static Future<void> showFullScreenNotification(BuildContext context, {
+    required String medicineName,
+    required String dosage,
+  }) async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (context) => FullScreenNotificationPage(
+          medicineName: medicineName,
+          dosage: dosage,
+        ),
+      ),
+    );
   }
 
   static Future<void> scheduleNotification(

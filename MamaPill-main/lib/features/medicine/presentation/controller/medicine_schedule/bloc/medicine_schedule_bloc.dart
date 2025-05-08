@@ -24,21 +24,21 @@ class MedicineScheduleBloc
 
   FutureOr<void> _onMedicineScheduleAdded(
       MedicineScheduleAdded event, Emitter<MedicineScheduleState> emit) async {
-    emit(state.copyWith(status: RequestStatus.loading));
+    emit(state.copyWith(saveStatus: RequestStatus.loading));
     final result = await addPatientDataUseCase(event.medicineSchedule);
     result.fold(
-      (failure) => emit(state.copyWith(status: RequestStatus.failure)),
-      (_) => emit(state.copyWith(status: RequestStatus.success)),
+      (failure) => emit(state.copyWith(saveStatus: RequestStatus.failure)),
+      (_) => emit(state.copyWith(saveStatus: RequestStatus.success)),
     );
   }
 
   FutureOr<void> _onMedicineScheduleDeleted(MedicineScheduleDeleted event,
       Emitter<MedicineScheduleState> emit) async {
-    emit(state.copyWith(status: RequestStatus.loading));
+    emit(state.copyWith(deleteStatus: RequestStatus.loading));
     final result = await deleteDispenserUseCase(event.medicineId);
     result.fold(
-      (failure) => emit(state.copyWith(status: RequestStatus.failure)),
-      (_) => emit(state.copyWith(status: RequestStatus.success)),
+      (failure) => emit(state.copyWith(deleteStatus: RequestStatus.failure)),
+      (_) => emit(state.copyWith(deleteStatus: RequestStatus.success)),
     );
   }
 }
