@@ -15,6 +15,8 @@ import 'package:mama_pill/core/utils/extensions.dart';
 import 'package:mama_pill/features/medicine/domain/entities/medicine_schedule.dart';
 import 'package:mama_pill/features/medicine/presentation/controller/medicine_form/cubit/medicine_form_cubit.dart';
 import 'package:mama_pill/features/notifications/presentation/controller/bloc/notification_bloc.dart';
+import 'package:mama_pill/features/notifications/domain/entities/notification.dart';
+import 'package:mama_pill/features/medicine/domain/entities/schedule.dart';
 
 class EditDispenserForm extends StatelessWidget {
   const EditDispenserForm({
@@ -117,6 +119,20 @@ class EditDispenserForm extends StatelessWidget {
                                     medicineScheduleBloc.add(
                                       MedicineScheduleAdded(medicineSchedule: updatedMedicine)
                                     );
+                    
+                                    context.read<NotificationBloc>().add(
+                      WeeklyNotificationScheduled(
+                        notification: NotificationData(
+                          id: medicine.index ?? 0,
+                          title: 'Medicine Updated',
+                          body: 'Your medicine ${updatedMedicine.medicine} has been updated successfully',
+                          schedule: Schedule(
+                            days: updatedMedicine.schedule.days,
+                            times: updatedMedicine.schedule.times,
+                          ),
+                        )
+                      )
+                    );
                                   },
                                 ),
                               ),
