@@ -24,20 +24,18 @@ class AppRouter {
           name: AppRoutes.welcome.name,
           pageBuilder: (context, state) =>
               const NoTransitionPage(child: WelcomeView()),
-          routes: [
-            GoRoute(
-              path: AppRoutes.login.path,
-              name: AppRoutes.login.name,
-              pageBuilder: (context, state) =>
-                  const CupertinoPage(child: LoginView()),
-            ),
-            GoRoute(
-              path: AppRoutes.register.path,
-              name: AppRoutes.register.name,
-              pageBuilder: (context, state) =>
-                  const CupertinoPage(child: RegisterView()),
-            ),
-          ],
+        ),
+        GoRoute(
+          path: AppRoutes.login.path,
+          name: AppRoutes.login.name,
+          pageBuilder: (context, state) =>
+              const CupertinoPage(child: LoginView()),
+        ),
+        GoRoute(
+          path: AppRoutes.register.path,
+          name: AppRoutes.register.name,
+          pageBuilder: (context, state) =>
+              const CupertinoPage(child: RegisterView()),
         ),
         GoRoute(
           path: AppRoutes.home.path,

@@ -39,26 +39,41 @@ class CustomCalendar extends StatelessWidget {
               color: AppColors.accent,
               shape: BoxShape.circle,
             ),
+            defaultTextStyle: TextStyle(
+              fontSize: AppFontSize.f16.sp,
+              fontWeight: FontWeight.w500,
+            ),
             selectedTextStyle: TextStyle(
               fontSize: AppFontSize.f16.sp,
               color: AppColors.backgroundSecondary,
               fontWeight: FontWeight.bold,
             ),
+            todayTextStyle: TextStyle(
+              fontSize: AppFontSize.f16.sp,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-          headerStyle: const HeaderStyle(
+          headerStyle: HeaderStyle(
             titleCentered: true,
             formatButtonVisible: false,
             headerPadding: EdgeInsets.zero,
+            titleTextStyle: TextStyle(
+              fontSize: AppFontSize.f20.sp,
+              fontWeight: FontWeight.bold,
+              color: AppColors.textPrimary,
+            ),
           ),
-          daysOfWeekHeight: 20,
+          daysOfWeekHeight: 25,
           daysOfWeekStyle: DaysOfWeekStyle(
             weekdayStyle: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: AppFontSize.f16.sp,
+              color: AppColors.textPrimary,
             ),
             weekendStyle: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: AppFontSize.f16.sp,
+              color: AppColors.textPrimary,
             ),
           ),
         ),

@@ -14,21 +14,31 @@ class LoginCubit extends Cubit<LoginState> {
 
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   Future<void> login() async {
     if (state.status == AuthStatus.submiting) return;
-    emit(state.copyWith(status: AuthStatus.submiting));
-    final result = await loginUseCase(
-      UserProfile(
-        email: emailController.text,
-        password: passwordController.text,
-      ),
-    );
-    result.fold(
-      (failure) => emit(
-          state.copyWith(status: AuthStatus.failure, message: failure.message)),
-      (user) => emit(state.copyWith(status: AuthStatus.success)),
-    );
+    try {
+      emit(state.copyWith(status: AuthStatus.submiting));
+      
+      // Add delay to show loading screen
+      await Future.delayed(const Duration(milliseconds: 500));
+      
+      final result = await loginUseCase(
+        UserProfile(
+          email: emailController.text,
+          password: passwordController.text,
+        ),
+      );
+      result.fold(
+        (failure) => emit(
+            state.copyWith(status: AuthStatus.failure, message: failure.message)),
+        (user) => emit(state.copyWith(status: AuthStatus.success)),
+      );
+    } catch (e) {
+      emit(state.copyWith(
+          status: AuthStatus.failure, message: 'An error occurred'));
+    }
   }
 
   void togglePasswordVisibility() {

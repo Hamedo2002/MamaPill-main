@@ -25,30 +25,34 @@ class RegisterForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     TextTheme textTheme = Theme.of(context).textTheme;
-    return Form(
-      key: cubit.formKey,
-      child: Container(
-        margin: AppMargin.largeH.w,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            _loginHeaderTitle(textTheme),
-            SizedBox(height: AppHeight.h32.h),
-            _usernameTextField(cubit),
-            SizedBox(height: AppHeight.h16.h),
-            _emailTextField(cubit),
-            SizedBox(height: AppHeight.h16.h),
-            _passwordTextField(cubit, state),
-            SizedBox(height: AppHeight.h16.h),
-            _confirmPasswordTextField(cubit, state),
-            SizedBox(height: AppHeight.h40.h),
-            state.status == AuthStatus.submiting
-                ? const CustomProgressIndicator()
-                : _loginButton(cubit),
-            _loginNow(context, textTheme),
-          ],
+    return Stack(
+      children: [
+        Form(
+          key: cubit.formKey,
+          child: Container(
+            margin: AppMargin.largeH.w,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                _loginHeaderTitle(textTheme),
+                SizedBox(height: AppHeight.h40.h),
+                _usernameTextField(cubit),
+                SizedBox(height: AppHeight.h16.h),
+                _emailTextField(cubit),
+                SizedBox(height: AppHeight.h16.h),
+                _passwordTextField(cubit, state),
+                SizedBox(height: AppHeight.h16.h),
+                _confirmPasswordTextField(cubit, state),
+                SizedBox(height: AppHeight.h40.h),
+                state.status == AuthStatus.submiting
+                    ? const Center(child: CustomProgressIndicator())
+                    : _loginButton(cubit),
+                _loginNow(context, textTheme),
+              ],
+            ),
+          ),
         ),
-      ),
+      ],
     );
   }
 }

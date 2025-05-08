@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mama_pill/core/presentation/widgets/custom_back_button.dart';
 import 'package:mama_pill/core/resources/colors.dart';
 import 'package:mama_pill/core/resources/messages.dart';
+import 'package:mama_pill/core/resources/routes.dart';
 import 'package:mama_pill/core/services/service_locator.dart';
 import 'package:mama_pill/core/utils/enums.dart';
 import 'package:mama_pill/core/utils/snack_bar_utils.dart';
@@ -30,6 +32,8 @@ class RegisterView extends StatelessWidget {
                 if (state.status == AuthStatus.failure) {
                   SnackBarUtils.showErrorSnackBar(
                       context, AppMessages.regiserationFailed, state.message);
+                } else if (state.status == AuthStatus.success) {
+                  context.goNamed(AppRoutes.home.name);
                 }
               },
               builder: (context, state) {

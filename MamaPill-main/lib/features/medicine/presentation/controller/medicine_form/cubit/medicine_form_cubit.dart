@@ -9,23 +9,23 @@ part 'medicine_form_state.dart';
 class MedicineFormCubit extends Cubit<MedicineFormState> {
   final TextEditingController medicineNameController = TextEditingController();
   final List<int> weekdays = [
+    DateTime.saturday,
+    DateTime.sunday,
     DateTime.monday,
     DateTime.tuesday,
     DateTime.wednesday,
     DateTime.thursday,
-    DateTime.friday,
-    DateTime.saturday,
-    DateTime.sunday
+    DateTime.friday
   ];
 
   final List<String> weekdaysNames = [
+    'Sat',
+    'Sun',
     'Mon',
     'Tue',
     'Wed',
     'Thu',
     'Fri',
-    'Sat',
-    'Sun',
   ];
 
   final List<String> timeIntervals = [
@@ -45,7 +45,9 @@ class MedicineFormCubit extends Cubit<MedicineFormState> {
   }
 
   void decrementDose() {
-    emit(state.copyWith(dose: state.dose - 1));
+    if (state.dose > 1) {
+      emit(state.copyWith(dose: state.dose - 1));
+    }
   }
 
   void toggleMedicineType() {
@@ -81,5 +83,19 @@ class MedicineFormCubit extends Cubit<MedicineFormState> {
       selectedTime: dateTime,
       selectedTimes: [DateTimeFormatter.formatDateTime(dateTime)],
     ));
+  }
+
+  void addTime(String time) {
+    List<String> currentTimes = List.from(state.selectedTimes);
+    if (!currentTimes.contains(time)) {
+      currentTimes.add(time);
+      emit(state.copyWith(selectedTimes: currentTimes));
+    }
+  }
+
+  void removeTime(String time) {
+    List<String> currentTimes = List.from(state.selectedTimes);
+    currentTimes.remove(time);
+    emit(state.copyWith(selectedTimes: currentTimes));
   }
 }

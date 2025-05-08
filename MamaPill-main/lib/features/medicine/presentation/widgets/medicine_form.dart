@@ -63,7 +63,7 @@ class MedicineForm extends StatelessWidget {
                     ],
                   ),
                   _weekdaysWidget(context),
-                  _timeIntervalsWidget(medicineFormCubit, medicineFormState),
+                  _timeIntervalsWidget(context, medicineFormCubit, medicineFormState),
                   medicineScheduleBloc.state.status == RequestStatus.loading
                       ? const CustomProgressIndicator()
                       : _addMedcineButton(context, patientId),
@@ -141,7 +141,7 @@ class MedicineForm extends StatelessWidget {
         return DayTimeCardTile(
           showIcon: true,
           selectedTextColor: AppColors.black,
-          title: medcineFormCubit.weekdaysNames[index],
+          title: medcineFormCubit.weekdaysNames[index].toUpperCase(),
           onTap: () => medcineFormCubit.toggleDaySelection(day),
           isSelected: medcineFormState.selectedDays.contains(day),
         );
@@ -150,22 +150,87 @@ class MedicineForm extends StatelessWidget {
   }
 
   Widget _timeIntervalsWidget(
+    BuildContext context,
     MedicineFormCubit medcineFormCubit,
     MedicineFormState state,
   ) {
-    return DayTimeList(
-      title: 'Times',
-      height: AppHeight.h60.h,
-      dayTime: medcineFormCubit.timeIntervals,
-      itemBuilder: (context, index) {
-        final String time = medcineFormCubit.timeIntervals[index];
-        return DayTimeCardTile(
-          title: '${time.split(' ')[0]}\n${time.split(' ')[1]}',
-          onTap: () => medcineFormCubit.toggleTimeSelection(time),
-          isSelected: state.selectedTimes.contains(time),
-        );
-      },
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+          child: Text(
+            'Times',
+            style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.shade200,
+                  blurRadius: 4,
+                  offset: Offset(0, 2),
+                ),
+              ],
+            ),
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              onPressed: () => _showTimePicker(context, medcineFormCubit),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.add_alarm, color: AppColors.white, size: 24.sp),
+                  SizedBox(width: 4.w),
+                  Text(
+                    'Add Time',
+                    style: TextStyle(
+                      color: AppColors.white,
+                      fontSize: 16.sp,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        if (state.selectedTimes.isNotEmpty)
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.w),
+            child: Wrap(
+              spacing: 8.w,
+              runSpacing: 8.h,
+              children: state.selectedTimes.map((time) {
+                return Chip(
+                  label: Text(time, style: TextStyle(fontSize: 12.sp)),
+                  onDeleted: () => medcineFormCubit.removeTime(time),
+                );
+              }).toList(),
+            ),
+          ),
+      ],
     );
+  }
+
+  void _showTimePicker(BuildContext context, MedicineFormCubit medcineFormCubit) async {
+    final TimeOfDay? pickedTime = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
+
+    if (pickedTime != null) {
+      final formattedTime = pickedTime.format(context);
+      medcineFormCubit.addTime(formattedTime);
+    }
   }
 
   CustomButton _addMedcineButton(BuildContext context, String patientId) {

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:mama_pill/core/helpers/date_time_formatter.dart';
+import 'package:mama_pill/features/medicine/data/models/schedule_model.dart';
+import 'package:mama_pill/features/medicine/presentation/controller/medicine_schedule/bloc/medicine_schedule_bloc.dart';
 
 import 'package:mama_pill/core/presentation/widgets/custom_button.dart';
 import 'package:mama_pill/core/presentation/widgets/custom_input_card.dart';
@@ -13,7 +14,6 @@ import 'package:mama_pill/core/utils/enums.dart';
 import 'package:mama_pill/core/utils/extensions.dart';
 import 'package:mama_pill/features/medicine/domain/entities/medicine_schedule.dart';
 import 'package:mama_pill/features/medicine/presentation/controller/medicine_form/cubit/medicine_form_cubit.dart';
-import 'package:mama_pill/features/medicine/presentation/controller/medicine_schedule/bloc/medicine_schedule_bloc.dart';
 import 'package:mama_pill/features/notifications/presentation/controller/bloc/notification_bloc.dart';
 
 class EditDispenserForm extends StatelessWidget {
@@ -45,22 +45,96 @@ class EditDispenserForm extends StatelessWidget {
                 builder: (context, medicineScheduleState) {
               final MedicineScheduleBloc addPatientBloc =
                   context.read<MedicineScheduleBloc>();
-              return Column(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  _dragLable(),
-                  Row(
-                    children: [
-                      _medicineNameTextField(context),
-                      Flexible(child: _doseCounter(context)),
-                    ],
+              final screenWidth = MediaQuery.of(context).size.width;
+              return ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: screenWidth * 0.95),
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                      bottom: MediaQuery.of(context).viewInsets.bottom,
+                      left: 8.w,
+                      right: 8.w,
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        _dragLable(),
+                        SizedBox(height: 16.h),
+                        ConstrainedBox(
+                          constraints: BoxConstraints(maxWidth: screenWidth * 0.9),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                flex: 3,
+                                child: _medicineNameTextField(context)
+                              ),
+                              SizedBox(width: 2.w),
+                              Expanded(
+                                flex: 2,
+                                child: _doseCounter(context)
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(height: 16.h),
+                        _scheduleTextField(context),
+                        SizedBox(height: 16.h),
+                        _timesTextField(context),
+                        SizedBox(height: 16.h),
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 16.w),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                flex: 1,
+                                child: CustomButton(
+                                  height: AppHeight.h40.h,
+                                  lable: 'Save Changes',
+                                  backgroundColor: AppColors.primary,
+                                  onTap: () {
+                                    // Get the current cubit and bloc
+                                    final medicineFormCubit = context.read<MedicineFormCubit>();
+                                    final medicineScheduleBloc = context.read<MedicineScheduleBloc>();
+
+                                    // Create updated medicine schedule
+                                    final updatedMedicine = MedicineSchedule(
+                                      id: medicine.id,
+                                      index: medicine.index,
+                                      userId: medicine.userId,
+                                      medicine: medicineFormCubit.medicineNameController.text,
+                                      type: medicineFormCubit.state.type,
+                                      dose: medicineFormCubit.state.dose,
+                                      schedule: ScheduleModel(
+                                        days: medicineFormCubit.state.selectedDays,
+                                        times: medicineFormCubit.state.selectedTimes,
+                                      ),
+                                    );
+
+                                    // Dispatch update event (using add event)
+                                    medicineScheduleBloc.add(
+                                      MedicineScheduleAdded(medicineSchedule: updatedMedicine)
+                                    );
+                                  },
+                                ),
+                              ),
+                              SizedBox(width: 2.w),
+                              Expanded(
+                                flex: 1,
+                                child: addPatientBloc.state.status == RequestStatus.loading
+                                    ? const CustomProgressIndicator()
+                                    : _deleteMedicineScheduleButton(context),
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(height: 16.h),
+                      ],
+                    ),
                   ),
-                  _scheduleTextField(context),
-                  _timesTextField(context),
-                  addPatientBloc.state.status == RequestStatus.loading
-                      ? const CustomProgressIndicator()
-                      : _deleteMedicineScheduleButton(context),
-                ],
+                ),
               );
             });
           },
@@ -84,42 +158,122 @@ class EditDispenserForm extends StatelessWidget {
   }
 
   CustomInputCard _medicineNameTextField(BuildContext context) {
+    final medcineFormCubit = context.read<MedicineFormCubit>();
+    medcineFormCubit.medicineNameController.text = medicine.medicine;
     return CustomInputCard(
       label: 'Medicine Name',
       margin: const EdgeInsets.fromLTRB(16, 0, 16, 0).w,
       width: AppWidth.w200.w,
       content: Padding(
         padding: const EdgeInsets.all(12.0).w,
-        child: Text(medicine.medicine),
+        child: TextField(
+          controller: medcineFormCubit.medicineNameController,
+          style: TextStyle(fontWeight: FontWeight.bold),
+          decoration: InputDecoration(
+            hintText: medicine.medicine,
+            border: InputBorder.none,
+          ),
+        ),
       ),
-      leading: Container(
-        padding: const EdgeInsets.all(AppPadding.p14).w,
-        child: ImageIcon(AssetImage(medicine.type.icon),
-            size: 10.h, color: AppColors.primary),
+      leading: GestureDetector(
+        onTap: () => medcineFormCubit.toggleMedicineType(),
+        child: Container(
+          padding: const EdgeInsets.all(AppPadding.p14).w,
+          child: ImageIcon(
+            AssetImage(medicine.type.icon),
+            size: 10.h, 
+            color: AppColors.primary
+          ),
+        ),
       ),
     );
   }
 
   CustomInputCard _doseCounter(BuildContext context) {
+    final medcineFormCubit = context.read<MedicineFormCubit>();
     final TextTheme textTheme = Theme.of(context).textTheme;
-    final String type = medicine.type.name;
+
     return CustomInputCard(
       label: 'Dose',
-      margin: const EdgeInsets.fromLTRB(8, 8, 16, 8).w,
-      content: Center(
-          child: Text('${medicine.dose} $type', style: textTheme.bodyMedium)),
+      margin: EdgeInsets.symmetric(horizontal: 4.w, vertical: 8.h),
+      width: AppWidth.w200.w,
+      content: LayoutBuilder(
+        builder: (context, constraints) {
+          return BlocBuilder<MedicineFormCubit, MedicineFormState>(
+            builder: (context, state) {
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Flexible(
+                    flex: 1,
+                    child: IconButton(
+                      constraints: BoxConstraints(minWidth: 40.w, minHeight: 40.h),
+                      icon: Icon(Icons.remove, color: state.dose > 1 ? AppColors.primary : Colors.grey, size: 20.sp),
+                      onPressed: state.dose > 1 ? () {
+                        medcineFormCubit.decrementDose();
+                      } : null,
+                    ),
+                  ),
+                  Flexible(
+                    flex: 2,
+                    child: Text(
+                      '${state.dose} ${medicine.type.name}', 
+                      style: textTheme.bodyMedium?.copyWith(fontSize: 16.sp, fontWeight: FontWeight.w700),
+                      textAlign: TextAlign.center,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  Flexible(
+                    flex: 1,
+                    child: IconButton(
+                      constraints: BoxConstraints(minWidth: 40.w, minHeight: 40.h),
+                      icon: Icon(Icons.add, color: AppColors.primary, size: 20.sp),
+                      onPressed: () {
+                        medcineFormCubit.incrementDose();
+                      },
+                    ),
+                  ),
+                ],
+              );
+            },
+          );
+        },
+      ),
     );
   }
 
   CustomInputCard _scheduleTextField(BuildContext context) {
-    final String weekdayName =
-        DateTimeFormatter.getWeekDayNames(medicine.schedule.days);
+    final medcineFormCubit = context.read<MedicineFormCubit>();
     return CustomInputCard(
       label: 'Schedule',
-      margin: const EdgeInsets.fromLTRB(16, 0, 16, 0).w,
-      content: Padding(
-        padding: const EdgeInsets.all(12.0).w,
-        child: Text(weekdayName),
+      margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+      content: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: 1.sw - 64.w),
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: medcineFormCubit.weekdays.map((day) {
+              final weekdayName = medcineFormCubit.weekdaysNames[
+                  medcineFormCubit.weekdays.indexOf(day)];
+              return Padding(
+                padding: EdgeInsets.symmetric(horizontal: 4.w),
+                child: FilterChip(
+                  label: Text(
+                    weekdayName, 
+                    style: TextStyle(fontSize: 12.sp, overflow: TextOverflow.ellipsis),
+                    maxLines: 1,
+                  ),
+                  selected: medcineFormCubit.state.selectedDays.contains(day),
+                  onSelected: (bool selected) {
+                    medcineFormCubit.toggleDaySelection(day);
+                  },
+                ),
+              );
+            }).toList(),
+          ),
+        ),
       ),
       leading: Container(
         padding: const EdgeInsets.all(AppPadding.p14).w,
@@ -130,18 +284,97 @@ class EditDispenserForm extends StatelessWidget {
   }
 
   CustomInputCard _timesTextField(BuildContext context) {
+    final medcineFormCubit = context.read<MedicineFormCubit>();
     return CustomInputCard(
-      label: '',
-      margin: const EdgeInsets.fromLTRB(16, 0, 16, 0).w,
-      content: Padding(
-        padding: const EdgeInsets.all(12.0).w,
-        child: Text(medicine.schedule.times.join(', ')),
+      label: 'Times',
+      margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+      content: LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minWidth: constraints.maxWidth, minHeight: constraints.minHeight),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.shade200,
+                            blurRadius: 4,
+                            offset: Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        onPressed: () => _showTimePicker(context, medcineFormCubit),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.add_alarm, color: AppColors.white, size: 24.sp),
+                            SizedBox(width: 4.w),
+                            Text(
+                              'Add Time',
+                              style: TextStyle(
+                                color: AppColors.white,
+                                fontSize: 16.sp,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  if (medcineFormCubit.state.selectedTimes.isNotEmpty)
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                      child: Center(
+                        child: Wrap(
+                          alignment: WrapAlignment.center,
+                          spacing: 8.w,
+                          runSpacing: 8.h,
+                          children: medcineFormCubit.state.selectedTimes.map((time) {
+                            return Chip(
+                              label: Text(time, style: TextStyle(fontSize: 12.sp)),
+                              onDeleted: () => medcineFormCubit.removeTime(time),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          );
+        },
       ),
       leading: Container(
         padding: const EdgeInsets.all(AppPadding.p14).w,
         child: Icon(Icons.access_time, size: 20.h, color: AppColors.primary),
       ),
     );
+  }
+
+  void _showTimePicker(BuildContext context, MedicineFormCubit medcineFormCubit) async {
+    final TimeOfDay? pickedTime = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
+
+    if (pickedTime != null) {
+      final formattedTime = pickedTime.format(context);
+      medcineFormCubit.addTime(formattedTime);
+    }
   }
 
   CustomButton _deleteMedicineScheduleButton(BuildContext context) {
@@ -151,8 +384,9 @@ class EditDispenserForm extends StatelessWidget {
     return CustomButton(
       height: AppHeight.h40.h,
       lable: 'Delete Medicine',
-      margin: AppMargin.medium.w,
+      margin: EdgeInsets.zero,
       backgroundColor: Colors.red,
+      textColor: Colors.white,
       onTap: () {
         notificationBloc.add(
           NotificationCanceled(

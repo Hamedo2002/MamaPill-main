@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mama_pill/core/helpers/validator.dart';
 import 'package:mama_pill/core/presentation/widgets/custom_button.dart';
-import 'package:mama_pill/core/presentation/widgets/custom_input_field.dart';
 import 'package:mama_pill/core/presentation/widgets/custom_progress_indicator.dart';
+import 'package:mama_pill/core/presentation/widgets/custom_input_field.dart';
+import 'package:mama_pill/core/helpers/validator.dart';
 import 'package:mama_pill/core/resources/colors.dart';
 import 'package:mama_pill/core/resources/routes.dart';
 import 'package:mama_pill/core/resources/strings.dart';
@@ -25,31 +26,42 @@ class LoginForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     TextTheme textTheme = Theme.of(context).textTheme;
-    return Container(
-      margin: AppMargin.largeH.w,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          _loginHeaderTitle(textTheme),
-          SizedBox(height: AppHeight.h40.h),
-          _emailTextField(cubit),
-          SizedBox(height: AppHeight.h16.h),
-          _passwordTextField(cubit, state),
-          _forgetPasswordButton(textTheme),
-          SizedBox(height: AppHeight.h48.h),
-          state.status == AuthStatus.submiting
-              ? const CustomProgressIndicator()
-              : _loginButton(cubit),
-          SizedBox(height: AppHeight.h16.h),
-          _registerNow(context, textTheme),
-        ],
-      ),
+    return Stack(
+      children: [
+        Form(
+          key: cubit.formKey,
+          child: Container(
+            margin: AppMargin.largeH.w,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                _loginHeaderTitle(textTheme),
+                SizedBox(height: AppHeight.h40.h),
+                _emailTextField(cubit),
+                SizedBox(height: AppHeight.h16.h),
+                _passwordTextField(cubit, state),
+                _forgetPasswordButton(textTheme),
+                SizedBox(height: AppHeight.h48.h),
+                state.status == AuthStatus.submiting
+                    ? const Center(child: CustomProgressIndicator())
+                    : _loginButton(cubit),
+                SizedBox(height: AppHeight.h16.h),
+                _registerNow(context, textTheme),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 
   CustomButton _loginButton(LoginCubit cubit) {
     return CustomButton(
-      onTap: () => cubit.login(),
+      onTap: () {
+        if (cubit.formKey.currentState!.validate()) {
+          cubit.login();
+        }
+      },
       lable: AppStrings.login,
       backgroundColor: AppColors.accent,
       margin: AppMargin.mediumH.w,

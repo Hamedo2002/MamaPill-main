@@ -22,19 +22,29 @@ class SignUpCubit extends Cubit<SignUpState> {
   Future<void> signUp() async {
     formKey.currentState!.save();
     if (formKey.currentState!.validate()) {
-      emit(state.copyWith(status: AuthStatus.submiting));
-      final result = await signUpUseCase(
-        UserProfile(
-          email: emailController.text,
-          password: passwordController.text,
-          username: usernameController.text,
-        ),
-      );
-      result.fold(
-        (failure) => emit(state.copyWith(
-            status: AuthStatus.failure, message: failure.message)),
-        (user) => emit(state.copyWith(status: AuthStatus.success)),
-      );
+      if (state.status == AuthStatus.submiting) return;
+      try {
+        emit(state.copyWith(status: AuthStatus.submiting));
+        
+        // Add delay to show loading screen
+        await Future.delayed(const Duration(milliseconds: 500));
+        
+        final result = await signUpUseCase(
+          UserProfile(
+            email: emailController.text,
+            password: passwordController.text,
+            username: usernameController.text,
+          ),
+        );
+        result.fold(
+          (failure) => emit(
+              state.copyWith(status: AuthStatus.failure, message: failure.message)),
+          (user) => emit(state.copyWith(status: AuthStatus.success)),
+        );
+      } catch (e) {
+        emit(state.copyWith(
+            status: AuthStatus.failure, message: 'An error occurred'));
+      }
     }
   }
 
