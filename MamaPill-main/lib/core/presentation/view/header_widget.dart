@@ -1,18 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:go_router/go_router.dart';
 import 'package:mama_pill/core/resources/assets.dart';
-import 'package:mama_pill/core/resources/routes.dart';
 import 'package:mama_pill/core/resources/values.dart';
 import 'package:mama_pill/features/authentication/presentation/controller/auth/bloc/auth_bloc.dart';
+import 'package:mama_pill/core/presentation/view/settings_view.dart';
 
-class HeaderWidget extends StatelessWidget {
+class HeaderWidget extends StatefulWidget {
   const HeaderWidget({
     super.key,
     required this.authBloc,
   });
   final AuthBloc authBloc;
 
+  @override
+  _HeaderWidgetState createState() => _HeaderWidgetState();
+}
+
+class _HeaderWidgetState extends State<HeaderWidget> {
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -33,10 +37,28 @@ class HeaderWidget extends StatelessWidget {
               ),
               const Spacer(),
               IconButton(
-                onPressed: () =>
-                    context.pushNamed(AppRoutes.setting.name, extra: authBloc),
-                padding: const EdgeInsets.only(right: AppPadding.p6).w,
-                constraints: const BoxConstraints(minWidth: 20),
+                onPressed: () {
+                  Navigator.of(context).push(
+                    PageRouteBuilder(
+                      pageBuilder: (context, animation, secondaryAnimation) => SettingsView(authBloc: widget.authBloc),
+                      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                        return ScaleTransition(
+                          scale: Tween<double>(begin: 0.8, end: 1.0).animate(
+                            CurvedAnimation(
+                              parent: animation,
+                              curve: Curves.easeOutBack,
+                            ),
+                          ),
+                          child: FadeTransition(
+                            opacity: animation,
+                            child: child,
+                          ),
+                        );
+                      },
+                      transitionDuration: const Duration(milliseconds: 400),
+                    ),
+                  );
+                },
                 icon: const Icon(Icons.settings_outlined),
               ),
             ],
