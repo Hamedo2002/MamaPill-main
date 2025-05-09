@@ -1,4 +1,9 @@
-enum AppStatus { authenticated, unauthenticated }
+enum AppStatus {
+  initial,
+  authenticated,
+  unauthenticated,
+  error,
+}
 
 enum AuthStatus { initial, submiting, success, failure }
 

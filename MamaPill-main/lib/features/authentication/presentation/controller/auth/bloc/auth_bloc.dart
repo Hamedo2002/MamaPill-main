@@ -49,9 +49,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   Future<FutureOr<void>> _onLogoutRequested(
       AuthLogoutRequested event, Emitter<AuthState> emit) async {
-    await logoutUseCase(const NoParams());
-    emit(state.copyWith(
-        status: AppStatus.unauthenticated, user: const UserProfile.empty()));
+    try {
+      await logoutUseCase(const NoParams());
+      emit(state.copyWith(
+          status: AppStatus.unauthenticated, user: const UserProfile.empty()));
+    } catch (e) {
+      emit(state.copyWith(status: AppStatus.error, errorMessage: e.toString()));
+    }
   }
 
   FutureOr<void> _onUserProfileFetched(
