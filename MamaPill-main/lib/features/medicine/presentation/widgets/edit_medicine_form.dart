@@ -15,6 +15,8 @@ import 'package:mama_pill/core/utils/extensions.dart';
 import 'package:mama_pill/features/medicine/domain/entities/medicine_schedule.dart';
 import 'package:mama_pill/features/medicine/presentation/controller/medicine_form/cubit/medicine_form_cubit.dart';
 import 'package:mama_pill/features/notifications/presentation/controller/bloc/notification_bloc.dart';
+import 'package:mama_pill/features/notifications/domain/entities/notification.dart';
+import 'package:mama_pill/features/medicine/data/models/schedule_model.dart';
 
 class EditDispenserForm extends StatelessWidget {
   const EditDispenserForm({
@@ -113,9 +115,33 @@ class EditDispenserForm extends StatelessWidget {
                                       ),
                                     );
 
-                                    // Dispatch update event (using add event)
+                                    // Cancel existing notification
+                                    final notificationBloc = context.read<NotificationBloc>();
+                                    notificationBloc.add(
+                                      NotificationCanceled(
+                                        id: medicine.index,
+                                        schedule: medicine.schedule,
+                                      ),
+                                    );
+
+                                    // Dispatch update event
                                     medicineScheduleBloc.add(
                                       MedicineScheduleAdded(medicineSchedule: updatedMedicine)
+                                    );
+
+                                    // Schedule new notification
+                                    notificationBloc.add(
+                                      WeeklyNotificationScheduled(
+                                        notification: NotificationData(
+                                          id: medicine.index,
+                                          title: 'Medicine Time',
+                                          body: 'Take ${medicineFormCubit.medicineNameController.text} - ${medicineFormCubit.state.dose} ${medicineFormCubit.state.type.name}',
+                                          schedule: ScheduleModel(
+                                            days: medicineFormCubit.state.selectedDays,
+                                            times: medicineFormCubit.state.selectedTimes,
+                                          ),
+                                        ),
+                                      ),
                                     );
                                   },
                                 ),
