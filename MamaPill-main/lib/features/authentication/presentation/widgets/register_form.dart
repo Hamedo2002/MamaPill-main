@@ -12,7 +12,7 @@ import 'package:mama_pill/core/resources/values.dart';
 import 'package:mama_pill/core/utils/enums.dart';
 import 'package:mama_pill/features/authentication/presentation/controller/sign_up/cubit/sign_up_cubit.dart';
 
-class RegisterForm extends StatelessWidget {
+class RegisterForm extends StatefulWidget {
   const RegisterForm({
     super.key,
     required this.cubit,
@@ -23,12 +23,58 @@ class RegisterForm extends StatelessWidget {
   final SignUpState state;
 
   @override
+  State<RegisterForm> createState() => _RegisterFormState();
+}
+
+class _RegisterFormState extends State<RegisterForm>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 1500),
+      vsync: this,
+    );
+
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: const Interval(0.0, 0.5, curve: Curves.easeIn),
+      ),
+    );
+
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.1),
+      end: Offset.zero,
+    ).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.easeOutCubic,
+      ),
+    );
+
+    _animationController.forward();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     TextTheme textTheme = Theme.of(context).textTheme;
-    return Stack(
-      children: [
-        Form(
-          key: cubit.formKey,
+    return FadeTransition(
+      opacity: _fadeAnimation,
+      child: SlideTransition(
+        position: _slideAnimation,
+        child: Form(
+          key: widget.cubit.formKey,
           child: Container(
             margin: AppMargin.largeH.w,
             child: Column(
@@ -36,23 +82,23 @@ class RegisterForm extends StatelessWidget {
               children: <Widget>[
                 _loginHeaderTitle(textTheme),
                 SizedBox(height: AppHeight.h40.h),
-                _usernameTextField(cubit),
+                _usernameTextField(widget.cubit),
                 SizedBox(height: AppHeight.h16.h),
-                _emailTextField(cubit),
+                _emailTextField(widget.cubit),
                 SizedBox(height: AppHeight.h16.h),
-                _passwordTextField(cubit, state),
+                _passwordTextField(widget.cubit, widget.state),
                 SizedBox(height: AppHeight.h16.h),
-                _confirmPasswordTextField(cubit, state),
+                _confirmPasswordTextField(widget.cubit, widget.state),
                 SizedBox(height: AppHeight.h40.h),
-                state.status == AuthStatus.submiting
+                widget.state.status == AuthStatus.submiting
                     ? const Center(child: CustomProgressIndicator())
-                    : _loginButton(cubit),
+                    : _loginButton(widget.cubit),
                 _loginNow(context, textTheme),
               ],
             ),
           ),
         ),
-      ],
+      ),
     );
   }
 }
@@ -61,7 +107,7 @@ CustomButton _loginButton(SignUpCubit cubit) {
   return CustomButton(
     onTap: () => cubit.signUp(),
     lable: AppStrings.signUp,
-    backgroundColor: AppColors.accent,
+    backgroundColor: AppColors.primary,
     margin: AppMargin.mediumH.w,
   );
 }
@@ -116,11 +162,29 @@ CustomInputField _usernameTextField(SignUpCubit cubit) {
 Column _loginHeaderTitle(TextTheme textTheme) {
   return Column(
     children: [
-      Text(AppStrings.registerTitle, style: textTheme.titleLarge),
+      Text(
+        AppStrings.registerTitle,
+        style: textTheme.titleLarge?.copyWith(
+          fontSize: 32.sp,
+          fontWeight: FontWeight.bold,
+          color: AppColors.primary,
+          letterSpacing: 1.2,
+          shadows: [
+            Shadow(
+              color: AppColors.primary.withOpacity(0.3),
+              offset: const Offset(0, 2),
+              blurRadius: 4,
+            ),
+          ],
+        ),
+      ),
       SizedBox(height: AppHeight.h6.h),
       Text(
         AppStrings.registerDescription,
-        style: textTheme.bodyLarge,
+        style: textTheme.bodyLarge?.copyWith(
+          color: AppColors.textSecondary,
+          fontSize: 16.sp,
+        ),
         textAlign: TextAlign.center,
       ),
     ],
@@ -131,14 +195,21 @@ Row _loginNow(BuildContext context, TextTheme textTheme) {
   return Row(
     mainAxisAlignment: MainAxisAlignment.center,
     children: [
-      Text(AppStrings.alreadyHaveAcc, style: textTheme.bodySmall),
+      Text(
+        AppStrings.alreadyHaveAcc,
+        style: textTheme.bodySmall?.copyWith(
+          color: AppColors.textSecondary,
+          fontSize: 14.sp,
+        ),
+      ),
       TextButton(
-        onPressed: () => context.goNamed(AppRoutes.login.name),
+        onPressed: () => context.pushNamed(AppRoutes.login.name),
         child: Text(
           AppStrings.loginNow,
-          style: textTheme.bodySmall!.copyWith(
+          style: textTheme.bodySmall?.copyWith(
             color: AppColors.primary,
             fontWeight: FontWeight.bold,
+            fontSize: 14.sp,
           ),
         ),
       ),

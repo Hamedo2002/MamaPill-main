@@ -19,27 +19,45 @@ class RegisterView extends StatelessWidget {
     return BlocProvider(
       create: (context) => sl<SignUpCubit>(),
       child: Scaffold(
-        backgroundColor: AppColors.backgroundSecondary,
-        appBar: AppBar(
-            elevation: 0,
-            backgroundColor: AppColors.backgroundSecondary,
-            leading: const CustomBackButton()),
-        body: Center(
-          child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            child: BlocConsumer<SignUpCubit, SignUpState>(
-              listener: (context, state) {
-                if (state.status == AuthStatus.failure) {
-                  SnackBarUtils.showErrorSnackBar(
-                      context, AppMessages.regiserationFailed, state.message);
-                } else if (state.status == AuthStatus.success) {
-                  context.goNamed(AppRoutes.home.name);
-                }
-              },
-              builder: (context, state) {
-                final cubit = context.read<SignUpCubit>();
-                return RegisterForm(cubit: cubit, state: state);
-              },
+        body: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                AppColors.primary.withOpacity(0.1),
+                AppColors.backgroundSecondary,
+              ],
+            ),
+          ),
+          child: SafeArea(
+            child: Stack(
+              children: [
+                Positioned(
+                  top: 16,
+                  left: 16,
+                  child: CustomBackButton(),
+                ),
+                Center(
+                  child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    child: BlocConsumer<SignUpCubit, SignUpState>(
+                      listener: (context, state) {
+                        if (state.status == AuthStatus.failure) {
+                          SnackBarUtils.showErrorSnackBar(context,
+                              AppMessages.regiserationFailed, state.message);
+                        } else if (state.status == AuthStatus.success) {
+                          context.goNamed(AppRoutes.home.name);
+                        }
+                      },
+                      builder: (context, state) {
+                        final cubit = context.read<SignUpCubit>();
+                        return RegisterForm(cubit: cubit, state: state);
+                      },
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ),

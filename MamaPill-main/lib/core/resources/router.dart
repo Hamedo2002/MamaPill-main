@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:mama_pill/core/presentation/view/home_view.dart';
 import 'package:mama_pill/core/presentation/view/settings_view.dart';
+import 'package:mama_pill/core/presentation/view/splash_view.dart';
 import 'package:mama_pill/core/presentation/view/welcome_view.dart';
 import 'package:mama_pill/core/resources/routes.dart';
 import 'package:mama_pill/core/utils/route_utils.dart';
@@ -17,8 +18,14 @@ class AppRouter {
   AppRouter(this.authBloc) {
     router = GoRouter(
       debugLogDiagnostics: true,
-      initialLocation: AppRoutes.welcome.path,
+      initialLocation: AppRoutes.splash.path,
       routes: [
+        GoRoute(
+          path: AppRoutes.splash.path,
+          name: AppRoutes.splash.name,
+          pageBuilder: (context, state) =>
+              const NoTransitionPage(child: SplashView()),
+        ),
         GoRoute(
           path: AppRoutes.welcome.path,
           name: AppRoutes.welcome.name,

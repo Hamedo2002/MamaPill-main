@@ -13,17 +13,24 @@ class RouteUtils {
     GoRouterState state,
   ) {
     final isLoggedIn = authBloc.state.status == AppStatus.authenticated;
+    final isOnSplashPage = state.matchedLocation == AppRoutes.splash.path;
     final isOnWelcomePage = state.matchedLocation == AppRoutes.welcome.path;
     final isOnLoginPage = state.matchedLocation.contains(AppRoutes.login.path);
     final isOnRegisterPage =
         state.matchedLocation.contains(AppRoutes.register.path);
 
     if (isLoggedIn) {
-      if (isOnWelcomePage || isOnLoginPage || isOnRegisterPage) {
+      if (isOnSplashPage ||
+          isOnWelcomePage ||
+          isOnLoginPage ||
+          isOnRegisterPage) {
         return AppRoutes.home.path;
       }
     } else {
-      if (!isOnWelcomePage && !isOnLoginPage && !isOnRegisterPage) {
+      if (!isOnSplashPage &&
+          !isOnWelcomePage &&
+          !isOnLoginPage &&
+          !isOnRegisterPage) {
         return AppRoutes.welcome.path;
       }
     }

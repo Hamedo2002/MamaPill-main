@@ -1,4 +1,5 @@
 enum AppRoutes {
+  splash,
   welcome,
   login,
   register,
@@ -9,6 +10,8 @@ enum AppRoutes {
 extension AppRoutesX on AppRoutes {
   String get path {
     switch (this) {
+      case AppRoutes.splash:
+        return '/';
       case AppRoutes.welcome:
         return '/welcome';
       case AppRoutes.login:
@@ -19,11 +22,13 @@ extension AppRoutesX on AppRoutes {
         return '/home';
       case AppRoutes.setting:
         return 'setting';
-      }
+    }
   }
 
   String get name {
     switch (this) {
+      case AppRoutes.splash:
+        return 'Splash';
       case AppRoutes.welcome:
         return 'Welcome';
       case AppRoutes.login:
@@ -34,6 +39,6 @@ extension AppRoutesX on AppRoutes {
         return 'Home';
       case AppRoutes.setting:
         return 'setting';
-      }
+    }
   }
 }
