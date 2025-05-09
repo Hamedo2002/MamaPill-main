@@ -10,6 +10,8 @@ extension MedicineTypeX on MedicineType {
         return 'tablet';
       case MedicineType.capsule:
         return 'capsule';
+      case MedicineType.liquid:
+        return 'liquid';
     }
   }
 
@@ -19,6 +21,8 @@ extension MedicineTypeX on MedicineType {
         return 'tab';
       case MedicineType.capsule:
         return 'cap';
+      case MedicineType.liquid:
+        return 'liq';
     }
   }
 
@@ -28,6 +32,8 @@ extension MedicineTypeX on MedicineType {
         return AppAssets.tablet;
       case MedicineType.capsule:
         return AppAssets.capsule;
+      case MedicineType.liquid:
+        return AppAssets.liquid;
     }
   }
 
@@ -37,6 +43,8 @@ extension MedicineTypeX on MedicineType {
         return AppColors.accent;
       case MedicineType.capsule:
         return AppColors.primary;
+      case MedicineType.liquid:
+        return AppColors.liquidColor3;
     }
   }
 }

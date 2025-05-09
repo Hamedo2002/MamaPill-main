@@ -51,10 +51,16 @@ class MedicineFormCubit extends Cubit<MedicineFormState> {
   }
 
   void toggleMedicineType() {
-    if (state.type == MedicineType.capsule) {
-      emit(state.copyWith(type: MedicineType.tablet));
-    } else {
-      emit(state.copyWith(type: MedicineType.capsule));
+    switch (state.type) {
+      case MedicineType.capsule:
+        emit(state.copyWith(type: MedicineType.tablet));
+        break;
+      case MedicineType.tablet:
+        emit(state.copyWith(type: MedicineType.liquid));
+        break;
+      case MedicineType.liquid:
+        emit(state.copyWith(type: MedicineType.capsule));
+        break;
     }
   }
 
