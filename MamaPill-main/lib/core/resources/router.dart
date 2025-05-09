@@ -53,8 +53,40 @@ class AppRouter {
             GoRoute(
               path: AppRoutes.setting.path,
               name: AppRoutes.setting.name,
-              pageBuilder: (context, state) => NoTransitionPage(
-                  child: SettingsView(authBloc: state.extra as AuthBloc)),
+              pageBuilder: (context, state) => CustomTransitionPage(
+                key: state.pageKey,
+                child: SettingsView(authBloc: state.extra as AuthBloc),
+                transitionsBuilder:
+                    (context, animation, secondaryAnimation, child) {
+                  const begin = Offset(1.0, 0.0);
+                  const end = Offset.zero;
+                  const curve = Curves.elasticOut;
+                  var tween = Tween(begin: begin, end: end)
+                      .chain(CurveTween(curve: curve));
+                  var offsetAnimation = animation.drive(tween);
+
+                  var scaleAnimation = Tween<double>(
+                    begin: 0.8,
+                    end: 1.0,
+                  ).animate(CurvedAnimation(
+                    parent: animation,
+                    curve: Curves.easeOutBack,
+                  ));
+
+                  return SlideTransition(
+                    position: offsetAnimation,
+                    child: FadeTransition(
+                      opacity: animation,
+                      child: ScaleTransition(
+                        scale: scaleAnimation,
+                        child: child,
+                      ),
+                    ),
+                  );
+                },
+                transitionDuration: const Duration(milliseconds: 800),
+                reverseTransitionDuration: const Duration(milliseconds: 600),
+              ),
             ),
           ],
         ),

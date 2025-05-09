@@ -4,6 +4,7 @@ class AppStrings {
   static const String welcomeDescription =
       'Manage your medications, receive intelligent reminders, and stay on top of your health';
 
+  static const String getStarted = 'Get Started';
   static const String login = 'Login';
   static const String loginTitle = 'Hello again!';
   static const String loginDescription = 'Welcome back, you\'ve\nbeen missed!';
