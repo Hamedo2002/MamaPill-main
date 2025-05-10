@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:mama_pill/core/resources/colors.dart';
 
 class MedicineTextField extends StatelessWidget {
   const MedicineTextField({
@@ -19,15 +21,24 @@ class MedicineTextField extends StatelessWidget {
     TextTheme textTheme = Theme.of(context).textTheme;
     return TextField(
       controller: controller,
-      style: textTheme.bodyMedium,
+      style: textTheme.bodyMedium?.copyWith(
+        fontSize: 16.sp,
+        color: AppColors.textPrimary,
+        fontWeight: FontWeight.w500,
+      ),
       textAlign: textAlign,
       keyboardType: keyboardType,
       textCapitalization: TextCapitalization.words,
       decoration: InputDecoration(
+        isDense: true,
+        contentPadding: EdgeInsets.symmetric(vertical: 12.h),
         fillColor: Colors.transparent,
         border: InputBorder.none,
         hintText: hintText,
-        hintStyle: textTheme.bodySmall,
+        hintStyle: textTheme.bodySmall?.copyWith(
+          fontSize: 16.sp,
+          color: AppColors.textSecondary.withOpacity(0.7),
+        ),
       ),
     );
   }

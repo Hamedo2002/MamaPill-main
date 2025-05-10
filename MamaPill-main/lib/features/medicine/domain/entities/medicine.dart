@@ -3,6 +3,7 @@ import 'package:mama_pill/core/utils/enums.dart';
 
 class Medicine extends Equatable {
   const Medicine({
+    required this.id,
     required this.name,
     required this.type,
     required this.dose,
@@ -11,6 +12,7 @@ class Medicine extends Equatable {
     // required this.status,
   });
 
+  final String id;
   final String name;
   final MedicineType type;
   final int dose;
@@ -19,5 +21,5 @@ class Medicine extends Equatable {
   // final MedicineStatus status;
 
   @override
-  List<Object?> get props => [name, type, dose, time];
+  List<Object?> get props => [id, name, type, dose, time];
 }

@@ -117,56 +117,109 @@ class MedicineForm extends StatelessWidget {
     final TextTheme textTheme = Theme.of(context).textTheme;
     final medcineFormCubit = context.read<MedicineFormCubit>();
     final medcineFormState = medcineFormCubit.state;
-    return CustomInputCard(
-      label: 'Dose',
-      margin: const EdgeInsets.fromLTRB(8, 8, 16, 8).w,
-      content: medcineFormState.type == MedicineType.liquid
-          ? Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                GestureDetector(
-                  onTap: () => medcineFormCubit.toggleUnit(),
-                  child: Container(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(6.r),
-                    ),
-                    child: Text(
-                      medcineFormState.isML ? 'ml' : 'cm',
-                      style: TextStyle(
-                        color: AppColors.primary,
-                        fontSize: 12.sp,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
+
+    if (medcineFormState.type == MedicineType.liquid) {
+      // Liquid UI
+      return CustomInputCard(
+        label: 'Dose',
+        margin: const EdgeInsets.fromLTRB(8, 8, 16, 8).w,
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            GestureDetector(
+              onTap: () => medcineFormCubit.toggleUnit(),
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(6.r),
+                ),
+                child: Text(
+                  medcineFormState.isML ? 'ml' : 'cm',
+                  style: TextStyle(
+                    color: AppColors.primary,
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
-                SizedBox(height: 4.h),
-                Center(
-                  child: Text(
-                    '${medcineFormState.dose}',
-                    style: textTheme.bodyMedium,
-                  ),
-                ),
-              ],
-            )
-          : Center(
+              ),
+            ),
+            SizedBox(height: 4.h),
+            Center(
               child: Text(
                 '${medcineFormState.dose}',
                 style: textTheme.bodyMedium,
               ),
             ),
-      leading: GestureDetector(
-        onTap: () => medcineFormCubit.decrementDose(),
-        child: const Icon(Icons.remove, color: AppColors.primary),
-      ),
-      trailing: GestureDetector(
-        onTap: () => medcineFormCubit.incrementDose(),
-        child: const Icon(Icons.add, color: AppColors.primary),
-      ),
-    );
+          ],
+        ),
+        leading: GestureDetector(
+          onTap: () => medcineFormCubit.decrementDose(),
+          child: const Icon(Icons.remove, color: AppColors.primary),
+        ),
+        trailing: GestureDetector(
+          onTap: () => medcineFormCubit.incrementDose(),
+          child: const Icon(Icons.add, color: AppColors.primary),
+        ),
+      );
+    } else if (medcineFormState.type == MedicineType.injection) {
+      // Injection UI (default color, only 'units' bold)
+      return CustomInputCard(
+        label: 'Dose',
+        margin: const EdgeInsets.fromLTRB(8, 8, 16, 8).w,
+        content: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              '${medcineFormState.dose}',
+              style: textTheme.bodyLarge?.copyWith(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.bold,
+                fontSize: 22,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            Text(
+              'units',
+              style: textTheme.bodySmall?.copyWith(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+        leading: GestureDetector(
+          onTap: () => medcineFormCubit.decrementDose(),
+          child: const Icon(Icons.remove, color: AppColors.primary),
+        ),
+        trailing: GestureDetector(
+          onTap: () => medcineFormCubit.incrementDose(),
+          child: const Icon(Icons.add, color: AppColors.primary),
+        ),
+      );
+    } else {
+      // Capsule/Tablet UI
+      return CustomInputCard(
+        label: 'Dose',
+        margin: const EdgeInsets.fromLTRB(8, 8, 16, 8).w,
+        content: Center(
+          child: Text(
+            '${medcineFormState.dose}',
+            style: textTheme.bodyMedium,
+          ),
+        ),
+        leading: GestureDetector(
+          onTap: () => medcineFormCubit.decrementDose(),
+          child: const Icon(Icons.remove, color: AppColors.primary),
+        ),
+        trailing: GestureDetector(
+          onTap: () => medcineFormCubit.incrementDose(),
+          child: const Icon(Icons.add, color: AppColors.primary),
+        ),
+      );
+    }
   }
 
   Widget _weekdaysWidget(BuildContext context) {

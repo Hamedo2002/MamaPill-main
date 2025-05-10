@@ -59,6 +59,9 @@ class MedicineFormCubit extends Cubit<MedicineFormState> {
         emit(state.copyWith(type: MedicineType.liquid, isML: true));
         break;
       case MedicineType.liquid:
+        emit(state.copyWith(type: MedicineType.injection, isML: true));
+        break;
+      case MedicineType.injection:
         emit(state.copyWith(type: MedicineType.capsule, isML: true));
         break;
     }

@@ -31,8 +31,10 @@ class MedicineScheduleModel extends MedicineSchedule {
         type: json["type"] == "capsule"
             ? MedicineType.capsule
             : json["type"] == "tablet"
-            ? MedicineType.tablet
-            : MedicineType.liquid,
+                ? MedicineType.tablet
+                : json["type"] == "liquid"
+                    ? MedicineType.liquid
+                    : MedicineType.injection,
         schedule: ScheduleModel.fromJson(json["schedule"]),
       );
 }

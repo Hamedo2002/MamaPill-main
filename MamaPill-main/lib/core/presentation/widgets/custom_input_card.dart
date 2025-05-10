@@ -39,49 +39,50 @@ class CustomInputCard extends StatelessWidget {
             margin: const EdgeInsets.only(left: 8, bottom: 4).w,
             child: Text(label, style: titleStyle),
           ),
-          IntrinsicHeight(
-            child: Row(
-              children: [
-                if (hasLeading) ...[
-                  Container(
-                    width: AppWidth.w48.w,
-                    height: AppHeight.h48.h,
-                    decoration: BoxDecoration(
-                      border: AppBorders.borderDirectionalStart,
-                      borderRadius: BorderRadius.only(
-                        topLeft: AppRadius.small.r,
-                        bottomLeft: AppRadius.small.r,
-                      ),
+          Row(
+            children: [
+              if (hasLeading) ...[
+                Container(
+                  width: AppWidth.w48.w,
+                  height: AppHeight.h48.h,
+                  decoration: BoxDecoration(
+                    border: AppBorders.borderDirectionalStart,
+                    borderRadius: BorderRadius.only(
+                      topLeft: AppRadius.small.r,
+                      bottomLeft: AppRadius.small.r,
                     ),
-                    child: leading,
                   ),
-                  VerticalDivider(indent: 12.sp, endIndent: 12.sp, width: 0),
-                ],
-                Expanded(
-                  child: Container(
-                    height: AppHeight.h48.h,
-                    decoration: BoxDecoration(
-                        border: _border, borderRadius: _borderRadius),
+                  child: leading,
+                ),
+                VerticalDivider(indent: 12.sp, endIndent: 12.sp, width: 0),
+              ],
+              Expanded(
+                child: Container(
+                  height: AppHeight.h48.h,
+                  decoration: BoxDecoration(
+                      border: _border, borderRadius: _borderRadius),
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 12.w),
                     child: content,
                   ),
                 ),
-                if (hasTrailing) ...[
-                  VerticalDivider(indent: 12.sp, endIndent: 12.sp, width: 0),
-                  Container(
-                    width: AppWidth.w48.w,
-                    height: AppWidth.w48.h,
-                    decoration: BoxDecoration(
-                      border: AppBorders.borderDirectionalEnd,
-                      borderRadius: BorderRadius.only(
-                        topRight: AppRadius.small.r,
-                        bottomRight: AppRadius.small.r,
-                      ),
+              ),
+              if (hasTrailing) ...[
+                VerticalDivider(indent: 12.sp, endIndent: 12.sp, width: 0),
+                Container(
+                  width: AppWidth.w48.w,
+                  height: AppWidth.w48.h,
+                  decoration: BoxDecoration(
+                    border: AppBorders.borderDirectionalEnd,
+                    borderRadius: BorderRadius.only(
+                      topRight: AppRadius.small.r,
+                      bottomRight: AppRadius.small.r,
                     ),
-                    child: trailing,
                   ),
-                ],
+                  child: trailing,
+                ),
               ],
-            ),
+            ],
           ),
         ],
       ),

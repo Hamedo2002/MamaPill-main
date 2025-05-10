@@ -12,6 +12,8 @@ extension MedicineTypeX on MedicineType {
         return 'capsule';
       case MedicineType.liquid:
         return 'liquid';
+      case MedicineType.injection:
+        return 'injection';
     }
   }
 
@@ -23,6 +25,8 @@ extension MedicineTypeX on MedicineType {
         return 'cap';
       case MedicineType.liquid:
         return 'liq';
+      case MedicineType.injection:
+        return 'inj';
     }
   }
 
@@ -34,17 +38,21 @@ extension MedicineTypeX on MedicineType {
         return AppAssets.capsule;
       case MedicineType.liquid:
         return AppAssets.liquid;
+      case MedicineType.injection:
+        return AppAssets.injection;
     }
   }
 
   Color get color {
     switch (this) {
       case MedicineType.tablet:
-        return AppColors.accent;
+        return Colors.orange;
       case MedicineType.capsule:
-        return AppColors.primary;
+        return Colors.blue;
       case MedicineType.liquid:
-        return AppColors.liquidColor3;
+        return Colors.red;
+      case MedicineType.injection:
+        return Colors.brown;
     }
   }
 }

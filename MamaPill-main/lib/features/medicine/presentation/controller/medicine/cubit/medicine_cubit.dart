@@ -39,6 +39,7 @@ class MedicineCubit extends Cubit<MedicineState> {
         for (final time in dispenser.schedule.times) {
           medicines.add(
             Medicine(
+              id: dispenser.id,
               name: dispenser.medicine,
               type: dispenser.type,
               dose: dispenser.dose,
@@ -48,12 +49,19 @@ class MedicineCubit extends Cubit<MedicineState> {
         }
       }
     }
-    medicines.sort((a, b) {
+    // Remove duplicates by id
+    final Map<String, Medicine> uniqueMap = {};
+    for (final med in medicines) {
+      uniqueMap[med.id] = med;
+    }
+    final uniqueMedicines = uniqueMap.values.toList();
+    uniqueMedicines.sort((a, b) {
       final aTime = DateTimeFormatter.extractTime(a.time);
       final bTime = DateTimeFormatter.extractTime(b.time);
       return aTime.compareTo(bTime);
     });
-    emit(state.copyWith(medicines: medicines, currentWeekday: currentWeekday));
+    emit(state.copyWith(
+        medicines: uniqueMedicines, currentWeekday: currentWeekday));
   }
 
   @override

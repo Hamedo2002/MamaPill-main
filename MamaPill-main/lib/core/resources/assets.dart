@@ -8,4 +8,5 @@ class AppAssets {
   static const String pills = 'assets/images/pills.png';
   static const String liquid = 'assets/images/liquid.png';
   static const String logo = 'assets/images/logo.png';
+  static const String injection = 'assets/images/injection.png';
 }
