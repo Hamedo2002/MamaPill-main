@@ -123,35 +123,41 @@ class MedicineForm extends StatelessWidget {
       return CustomInputCard(
         label: 'Dose',
         margin: const EdgeInsets.fromLTRB(8, 8, 16, 8).w,
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            GestureDetector(
-              onTap: () => medcineFormCubit.toggleUnit(),
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(6.r),
+        content: Container(
+          width: 70.w,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                '${medcineFormState.dose}',
+                style: textTheme.bodyMedium?.copyWith(
+                  fontSize: 15.sp,
+                  fontWeight: FontWeight.bold,
                 ),
-                child: Text(
-                  medcineFormState.isML ? 'ml' : 'cm',
-                  style: TextStyle(
-                    color: AppColors.primary,
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w600,
+              ),
+              SizedBox(width: 4.w),
+              GestureDetector(
+                onTap: () => medcineFormCubit.toggleUnit(),
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 3.h),
+                  constraints: BoxConstraints(minWidth: 22.5.w),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(6.r),
+                  ),
+                  child: Text(
+                    medcineFormState.isML ? 'ml' : 'cm',
+                    style: TextStyle(
+                      color: AppColors.primary,
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    textAlign: TextAlign.center,
                   ),
                 ),
               ),
-            ),
-            SizedBox(height: 4.h),
-            Center(
-              child: Text(
-                '${medcineFormState.dose}',
-                style: textTheme.bodyMedium,
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
         leading: GestureDetector(
           onTap: () => medcineFormCubit.decrementDose(),
@@ -172,10 +178,9 @@ class MedicineForm extends StatelessWidget {
           children: [
             Text(
               '${medcineFormState.dose}',
-              style: textTheme.bodyLarge?.copyWith(
-                color: AppColors.textPrimary,
+              style: textTheme.bodyMedium?.copyWith(
+                fontSize: 15.sp,
                 fontWeight: FontWeight.bold,
-                fontSize: 22,
               ),
               textAlign: TextAlign.center,
             ),
@@ -207,7 +212,10 @@ class MedicineForm extends StatelessWidget {
         content: Center(
           child: Text(
             '${medcineFormState.dose}',
-            style: textTheme.bodyMedium,
+            style: textTheme.bodyMedium?.copyWith(
+            fontSize: 15.sp,
+            fontWeight: FontWeight.bold,
+          ),
           ),
         ),
         leading: GestureDetector(
