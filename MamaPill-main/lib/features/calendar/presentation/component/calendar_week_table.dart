@@ -57,6 +57,8 @@ class CustomCalendar extends StatelessWidget {
             titleCentered: true,
             formatButtonVisible: false,
             headerPadding: EdgeInsets.zero,
+            leftChevronIcon: Icon(Icons.chevron_left, color: AppColors.accent),
+            rightChevronIcon: Icon(Icons.chevron_right, color: AppColors.accent),
             titleTextStyle: TextStyle(
               fontSize: AppFontSize.f20.sp,
               fontWeight: FontWeight.bold,
