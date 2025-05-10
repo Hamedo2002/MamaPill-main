@@ -17,6 +17,7 @@ import 'package:mama_pill/features/medicine/presentation/controller/medicine_for
 import 'package:mama_pill/features/notifications/presentation/controller/bloc/notification_bloc.dart';
 import 'package:mama_pill/features/notifications/domain/entities/notification.dart';
 import 'package:mama_pill/features/medicine/data/models/schedule_model.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class EditDispenserForm extends StatelessWidget {
   const EditDispenserForm({
@@ -37,7 +38,8 @@ class EditDispenserForm extends StatelessWidget {
       ],
       child: BlocListener<MedicineScheduleBloc, MedicineScheduleState>(
         listener: (context, state) {
-          if (state.saveStatus == RequestStatus.success || state.deleteStatus == RequestStatus.success) {
+          if (state.saveStatus == RequestStatus.success ||
+              state.deleteStatus == RequestStatus.success) {
             Navigator.pop(context);
           }
         },
@@ -62,19 +64,16 @@ class EditDispenserForm extends StatelessWidget {
                         _dragLable(),
                         SizedBox(height: 16.h),
                         ConstrainedBox(
-                          constraints: BoxConstraints(maxWidth: screenWidth * 0.9),
+                          constraints:
+                              BoxConstraints(maxWidth: screenWidth * 0.9),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Expanded(
-                                flex: 3,
-                                child: _medicineNameTextField(context)
-                              ),
+                                  flex: 3,
+                                  child: _medicineNameTextField(context)),
                               SizedBox(width: 2.w),
-                              Expanded(
-                                flex: 2,
-                                child: _doseCounter(context)
-                              ),
+                              Expanded(flex: 2, child: _doseCounter(context)),
                             ],
                           ),
                         ),
@@ -90,66 +89,93 @@ class EditDispenserForm extends StatelessWidget {
                             children: [
                               Expanded(
                                 flex: 1,
-                                child: medicineScheduleState.saveStatus == RequestStatus.loading
+                                child: medicineScheduleState.saveStatus ==
+                                        RequestStatus.loading
                                     ? const CustomProgressIndicator()
                                     : CustomButton(
-                                  height: AppHeight.h40.h,
-                                  lable: 'Save Changes',
-                                  backgroundColor: AppColors.primary,
-                                  onTap: () {
-                                    // Get the current cubit and bloc
-                                    final medicineFormCubit = context.read<MedicineFormCubit>();
-                                    final medicineScheduleBloc = context.read<MedicineScheduleBloc>();
+                                        height: AppHeight.h40.h,
+                                        lable: 'Save Changes',
+                                        backgroundColor: AppColors.primary,
+                                        onTap: () {
+                                          // Get the current cubit and bloc
+                                          final medicineFormCubit =
+                                              context.read<MedicineFormCubit>();
+                                          final medicineScheduleBloc = context
+                                              .read<MedicineScheduleBloc>();
 
-                                    // Create updated medicine schedule
-                                    final updatedMedicine = MedicineSchedule(
-                                      id: medicine.id,
-                                      index: medicine.index,
-                                      userId: medicine.userId,
-                                      medicine: medicineFormCubit.medicineNameController.text,
-                                      type: medicineFormCubit.state.type,
-                                      dose: medicineFormCubit.state.dose,
-                                      schedule: ScheduleModel(
-                                        days: medicineFormCubit.state.selectedDays,
-                                        times: medicineFormCubit.state.selectedTimes,
+                                          // Create updated medicine schedule
+                                          final updatedMedicine =
+                                              MedicineSchedule(
+                                            id: medicine.id,
+                                            index: medicine.index,
+                                            userId: medicine.userId,
+                                            medicine: medicineFormCubit
+                                                .medicineNameController.text,
+                                            type: medicineFormCubit.state.type,
+                                            dose: medicineFormCubit.state.dose,
+                                            schedule: ScheduleModel(
+                                              days: medicineFormCubit
+                                                  .state.selectedDays,
+                                              times: medicineFormCubit
+                                                  .state.selectedTimes,
+                                            ),
+                                          );
+
+                                          // Cancel existing notification
+                                          final notificationBloc =
+                                              context.read<NotificationBloc>();
+                                          notificationBloc.add(
+                                            NotificationCanceled(
+                                              id: medicine.index,
+                                              schedule: medicine.schedule,
+                                            ),
+                                          );
+
+                                          // Dispatch update event
+                                          medicineScheduleBloc.add(
+                                              MedicineScheduleAdded(
+                                                  medicineSchedule:
+                                                      updatedMedicine));
+
+                                          // Check if notifications are enabled before scheduling new ones
+                                          final prefs =
+                                              SharedPreferences.getInstance();
+                                          final notificationsEnabled =
+                                              prefs.then((prefs) =>
+                                                  prefs.getBool(
+                                                      'notifications_enabled') ??
+                                                  true);
+
+                                          notificationsEnabled.then((enabled) {
+                                            if (enabled) {
+                                              // Schedule new notification
+                                              notificationBloc.add(
+                                                WeeklyNotificationScheduled(
+                                                  notification:
+                                                      NotificationData(
+                                                    id: medicine.index,
+                                                    title: 'Medicine Time',
+                                                    body:
+                                                        'Take ${medicineFormCubit.medicineNameController.text} - ${medicineFormCubit.state.dose} ${medicineFormCubit.state.type.name}',
+                                                    schedule: ScheduleModel(
+                                                      days: medicineFormCubit
+                                                          .state.selectedDays,
+                                                      times: medicineFormCubit
+                                                          .state.selectedTimes,
+                                                    ),
+                                                  ),
+                                                ),
+                                              );
+                                            }
+                                          });
+                                        },
                                       ),
-                                    );
-
-                                    // Cancel existing notification
-                                    final notificationBloc = context.read<NotificationBloc>();
-                                    notificationBloc.add(
-                                      NotificationCanceled(
-                                        id: medicine.index,
-                                        schedule: medicine.schedule,
-                                      ),
-                                    );
-
-                                    // Dispatch update event
-                                    medicineScheduleBloc.add(
-                                      MedicineScheduleAdded(medicineSchedule: updatedMedicine)
-                                    );
-
-                                    // Schedule new notification
-                                    notificationBloc.add(
-                                      WeeklyNotificationScheduled(
-                                        notification: NotificationData(
-                                          id: medicine.index,
-                                          title: 'Medicine Time',
-                                          body: 'Take ${medicineFormCubit.medicineNameController.text} - ${medicineFormCubit.state.dose} ${medicineFormCubit.state.type.name}',
-                                          schedule: ScheduleModel(
-                                            days: medicineFormCubit.state.selectedDays,
-                                            times: medicineFormCubit.state.selectedTimes,
-                                          ),
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                ),
                               ),
                               SizedBox(width: 2.w),
                               Expanded(
                                 flex: 1,
-                                child: medicineScheduleState.deleteStatus == RequestStatus.loading
+                                child: medicineScheduleState.deleteStatus ==
+                                        RequestStatus.loading
                                     ? const CustomProgressIndicator()
                                     : _deleteMedicineScheduleButton(context),
                               ),
@@ -205,11 +231,8 @@ class EditDispenserForm extends StatelessWidget {
         onTap: () => medcineFormCubit.toggleMedicineType(),
         child: Container(
           padding: const EdgeInsets.all(AppPadding.p14).w,
-          child: ImageIcon(
-            AssetImage(medicine.type.icon),
-            size: 10.h, 
-            color: AppColors.primary
-          ),
+          child: ImageIcon(AssetImage(medicine.type.icon),
+              size: 10.h, color: AppColors.primary),
         ),
       ),
     );
@@ -234,18 +257,25 @@ class EditDispenserForm extends StatelessWidget {
                   Flexible(
                     flex: 1,
                     child: IconButton(
-                      constraints: BoxConstraints(minWidth: 40.w, minHeight: 40.h),
-                      icon: Icon(Icons.remove, color: state.dose > 1 ? AppColors.primary : Colors.grey, size: 20.sp),
-                      onPressed: state.dose > 1 ? () {
-                        medcineFormCubit.decrementDose();
-                      } : null,
+                      constraints:
+                          BoxConstraints(minWidth: 40.w, minHeight: 40.h),
+                      icon: Icon(Icons.remove,
+                          color:
+                              state.dose > 1 ? AppColors.primary : Colors.grey,
+                          size: 20.sp),
+                      onPressed: state.dose > 1
+                          ? () {
+                              medcineFormCubit.decrementDose();
+                            }
+                          : null,
                     ),
                   ),
                   Flexible(
                     flex: 2,
                     child: Text(
-                      '${state.dose} ${medicine.type.name}', 
-                      style: textTheme.bodyMedium?.copyWith(fontSize: 16.sp, fontWeight: FontWeight.w700),
+                      '${state.dose} ${medicine.type.name}',
+                      style: textTheme.bodyMedium?.copyWith(
+                          fontSize: 16.sp, fontWeight: FontWeight.w700),
                       textAlign: TextAlign.center,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -253,8 +283,10 @@ class EditDispenserForm extends StatelessWidget {
                   Flexible(
                     flex: 1,
                     child: IconButton(
-                      constraints: BoxConstraints(minWidth: 40.w, minHeight: 40.h),
-                      icon: Icon(Icons.add, color: AppColors.primary, size: 20.sp),
+                      constraints:
+                          BoxConstraints(minWidth: 40.w, minHeight: 40.h),
+                      icon: Icon(Icons.add,
+                          color: AppColors.primary, size: 20.sp),
                       onPressed: () {
                         medcineFormCubit.incrementDose();
                       },
@@ -281,14 +313,15 @@ class EditDispenserForm extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: medcineFormCubit.weekdays.map((day) {
-              final weekdayName = medcineFormCubit.weekdaysNames[
-                  medcineFormCubit.weekdays.indexOf(day)];
+              final weekdayName = medcineFormCubit
+                  .weekdaysNames[medcineFormCubit.weekdays.indexOf(day)];
               return Padding(
                 padding: EdgeInsets.symmetric(horizontal: 4.w),
                 child: FilterChip(
                   label: Text(
-                    weekdayName, 
-                    style: TextStyle(fontSize: 12.sp, overflow: TextOverflow.ellipsis),
+                    weekdayName,
+                    style: TextStyle(
+                        fontSize: 12.sp, overflow: TextOverflow.ellipsis),
                     maxLines: 1,
                   ),
                   selected: medcineFormCubit.state.selectedDays.contains(day),
@@ -318,12 +351,15 @@ class EditDispenserForm extends StatelessWidget {
         builder: (context, constraints) {
           return SingleChildScrollView(
             child: ConstrainedBox(
-              constraints: BoxConstraints(minWidth: constraints.maxWidth, minHeight: constraints.minHeight),
+              constraints: BoxConstraints(
+                  minWidth: constraints.maxWidth,
+                  minHeight: constraints.minHeight),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
                     child: Container(
                       decoration: BoxDecoration(
                         color: Colors.white,
@@ -343,11 +379,13 @@ class EditDispenserForm extends StatelessWidget {
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                        onPressed: () => _showTimePicker(context, medcineFormCubit),
+                        onPressed: () =>
+                            _showTimePicker(context, medcineFormCubit),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.add_alarm, color: AppColors.white, size: 24.sp),
+                            Icon(Icons.add_alarm,
+                                color: AppColors.white, size: 24.sp),
                             SizedBox(width: 4.w),
                             Text(
                               'Add Time',
@@ -363,16 +401,20 @@ class EditDispenserForm extends StatelessWidget {
                   ),
                   if (medcineFormCubit.state.selectedTimes.isNotEmpty)
                     Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
                       child: Center(
                         child: Wrap(
                           alignment: WrapAlignment.center,
                           spacing: 8.w,
                           runSpacing: 8.h,
-                          children: medcineFormCubit.state.selectedTimes.map((time) {
+                          children:
+                              medcineFormCubit.state.selectedTimes.map((time) {
                             return Chip(
-                              label: Text(time, style: TextStyle(fontSize: 12.sp)),
-                              onDeleted: () => medcineFormCubit.removeTime(time),
+                              label:
+                                  Text(time, style: TextStyle(fontSize: 12.sp)),
+                              onDeleted: () =>
+                                  medcineFormCubit.removeTime(time),
                             );
                           }).toList(),
                         ),
@@ -391,7 +433,8 @@ class EditDispenserForm extends StatelessWidget {
     );
   }
 
-  void _showTimePicker(BuildContext context, MedicineFormCubit medcineFormCubit) async {
+  void _showTimePicker(
+      BuildContext context, MedicineFormCubit medcineFormCubit) async {
     final TimeOfDay? pickedTime = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.now(),

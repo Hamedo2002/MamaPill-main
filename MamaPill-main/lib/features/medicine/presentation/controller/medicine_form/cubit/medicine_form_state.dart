@@ -9,6 +9,7 @@ class MedicineFormState extends Equatable {
     this.selectedDays = const [],
     this.type = MedicineType.capsule,
     this.selectedDay = 0,
+    this.isML = true,
     required this.selectedTime,
   });
 
@@ -20,6 +21,7 @@ class MedicineFormState extends Equatable {
   final MedicineType type;
   final DateTime selectedTime;
   final int selectedDay;
+  final bool isML;
 
   MedicineFormState copyWith({
     String? id,
@@ -30,6 +32,7 @@ class MedicineFormState extends Equatable {
     MedicineType? type,
     DateTime? selectedTime,
     int? selectedDay,
+    bool? isML,
   }) {
     return MedicineFormState(
       id: id ?? this.id,
@@ -40,6 +43,7 @@ class MedicineFormState extends Equatable {
       type: type ?? this.type,
       selectedTime: selectedTime ?? this.selectedTime,
       selectedDay: selectedDay ?? this.selectedDay,
+      isML: isML ?? this.isML,
     );
   }
 
@@ -53,5 +57,6 @@ class MedicineFormState extends Equatable {
         type,
         selectedTime,
         selectedDay,
+        isML,
       ];
 }

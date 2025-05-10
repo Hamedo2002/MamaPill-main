@@ -39,21 +39,21 @@ class LoginView extends StatelessWidget {
                   child: CustomBackButton(),
                 ),
                 Center(
-                  child: SingleChildScrollView(
-                    physics: const BouncingScrollPhysics(),
-                    child: BlocConsumer<LoginCubit, LoginState>(
-                      listener: (context, state) {
-                        if (state.status == AuthStatus.failure) {
-                          SnackBarUtils.showErrorSnackBar(
-                              context, AppMessages.loginFailed, state.message);
-                        } else if (state.status == AuthStatus.success) {
-                          context.goNamed(AppRoutes.home.name);
-                        }
-                      },
-                      builder: (context, state) {
-                        final cubit = context.read<LoginCubit>();
-                        return LoginForm(cubit: cubit, state: state);
-                      },
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: BlocConsumer<LoginCubit, LoginState>(
+              listener: (context, state) {
+                if (state.status == AuthStatus.failure) {
+                  SnackBarUtils.showErrorSnackBar(
+                      context, AppMessages.loginFailed, state.message);
+                } else if (state.status == AuthStatus.success) {
+                  context.goNamed(AppRoutes.home.name);
+                }
+              },
+              builder: (context, state) {
+                final cubit = context.read<LoginCubit>();
+                return LoginForm(cubit: cubit, state: state);
+              },
                     ),
                   ),
                 ),

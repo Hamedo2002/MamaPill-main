@@ -381,19 +381,10 @@ class _SplashViewState extends State<SplashView> with TickerProviderStateMixin {
                               ),
                             ),
                             SizedBox(width: 8.w),
-                            TweenAnimationBuilder<double>(
-                              duration: const Duration(milliseconds: 1000),
-                              tween: Tween(begin: 0.0, end: 1.0),
-                              builder: (context, value, child) {
-                                return Transform.rotate(
-                                  angle: value * 0.3,
-                                  child: Icon(
-                                    Icons.arrow_forward_rounded,
-                                    color: AppColors.white,
-                                    size: 20.sp,
-                                  ),
-                                );
-                              },
+                            Icon(
+                              Icons.arrow_forward_rounded,
+                              color: AppColors.white,
+                              size: 20.sp,
                             ),
                           ],
                         ),

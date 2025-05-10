@@ -152,14 +152,14 @@ class _WelcomeViewState extends State<WelcomeView>
           ),
         ),
         child: SafeArea(
-          minimum: const EdgeInsets.symmetric(vertical: 36, horizontal: 14).w,
+        minimum: const EdgeInsets.symmetric(vertical: 36, horizontal: 14).w,
           child: FadeTransition(
             opacity: _fadeAnimation!,
             child: SlideTransition(
               position: _slideAnimation!,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
                   ScaleTransition(
                     scale: _scaleAnimation!,
                     child: Stack(
@@ -227,7 +227,7 @@ class _WelcomeViewState extends State<WelcomeView>
                             child: Container(
                               color: AppColors.white.withOpacity(0.98),
                               child: SvgImage(
-                                assetName: AppAssets.welcome,
+              assetName: AppAssets.welcome,
                                 width: 320.w,
                               ),
                             ),
@@ -235,14 +235,14 @@ class _WelcomeViewState extends State<WelcomeView>
                         ),
                       ],
                     ),
-                  ),
-                  Column(
-                    children: [
+            ),
+            Column(
+              children: [
                       Container(
                         padding: EdgeInsets.symmetric(horizontal: 20.w),
                         child: Text(
-                          AppStrings.welcomeTitle,
-                          textAlign: TextAlign.center,
+                  AppStrings.welcomeTitle,
+                  textAlign: TextAlign.center,
                           style: textTheme.titleLarge?.copyWith(
                             fontSize: 36.sp,
                             fontWeight: FontWeight.bold,
@@ -258,28 +258,28 @@ class _WelcomeViewState extends State<WelcomeView>
                             ],
                           ),
                         ),
-                      ),
+                ),
                       SizedBox(height: AppHeight.h8.h),
                       Container(
                         padding: EdgeInsets.symmetric(horizontal: 24.w),
-                        child: Text(
-                          AppStrings.welcomeDescription,
-                          textAlign: TextAlign.center,
+                  child: Text(
+                    AppStrings.welcomeDescription,
+                    textAlign: TextAlign.center,
                           style: textTheme.titleSmall?.copyWith(
                             color: AppColors.textSecondary,
                             fontSize: 17.sp,
                             height: 1.4,
                             letterSpacing: 0.3,
                           ),
-                        ),
-                      ),
-                    ],
                   ),
+                ),
+              ],
+            ),
                   Container(
                     margin: EdgeInsets.only(bottom: 16.h),
                     child: _authButtonRow(context),
                   ),
-                ],
+          ],
               ),
             ),
           ),

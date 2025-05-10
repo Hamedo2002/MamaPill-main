@@ -20,6 +20,7 @@ import 'package:mama_pill/features/medicine/presentation/controller/medicine_for
 import 'package:mama_pill/features/medicine/presentation/controller/medicine_schedule/bloc/medicine_schedule_bloc.dart';
 import 'package:mama_pill/features/notifications/domain/entities/notification.dart';
 import 'package:mama_pill/features/notifications/presentation/controller/bloc/notification_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MedicineForm extends StatelessWidget {
   const MedicineForm({
@@ -63,7 +64,8 @@ class MedicineForm extends StatelessWidget {
                     ],
                   ),
                   _weekdaysWidget(context),
-                  _timeIntervalsWidget(context, medicineFormCubit, medicineFormState),
+                  _timeIntervalsWidget(
+                      context, medicineFormCubit, medicineFormState),
                   medicineScheduleBloc.state.saveStatus == RequestStatus.loading
                       ? const CustomProgressIndicator()
                       : _addMedcineButton(context, patientId),
@@ -118,14 +120,52 @@ class MedicineForm extends StatelessWidget {
     return CustomInputCard(
       label: 'Dose',
       margin: const EdgeInsets.fromLTRB(8, 8, 16, 8).w,
-      content: Center(
-          child: Text('${medcineFormState.dose}', style: textTheme.bodyMedium)),
+      content: medcineFormState.type == MedicineType.liquid
+          ? Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                GestureDetector(
+                  onTap: () => medcineFormCubit.toggleUnit(),
+                  child: Container(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(6.r),
+                    ),
+                    child: Text(
+                      medcineFormState.isML ? 'ml' : 'cm',
+                      style: TextStyle(
+                        color: AppColors.primary,
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 4.h),
+                Center(
+                  child: Text(
+                    '${medcineFormState.dose}',
+                    style: textTheme.bodyMedium,
+                  ),
+                ),
+              ],
+            )
+          : Center(
+              child: Text(
+                '${medcineFormState.dose}',
+                style: textTheme.bodyMedium,
+              ),
+            ),
       leading: GestureDetector(
-          onTap: () => medcineFormCubit.decrementDose(),
-          child: const Icon(Icons.remove, color: AppColors.primary)),
+        onTap: () => medcineFormCubit.decrementDose(),
+        child: const Icon(Icons.remove, color: AppColors.primary),
+      ),
       trailing: GestureDetector(
-          onTap: () => medcineFormCubit.incrementDose(),
-          child: const Icon(Icons.add, color: AppColors.primary)),
+        onTap: () => medcineFormCubit.incrementDose(),
+        child: const Icon(Icons.add, color: AppColors.primary),
+      ),
     );
   }
 
@@ -221,10 +261,32 @@ class MedicineForm extends StatelessWidget {
     );
   }
 
-  void _showTimePicker(BuildContext context, MedicineFormCubit medcineFormCubit) async {
+  void _showTimePicker(
+      BuildContext context, MedicineFormCubit medcineFormCubit) async {
     final TimeOfDay? pickedTime = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.now(),
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.light(
+              primary: AppColors.primary,
+              onPrimary: AppColors.white,
+              surface: AppColors.backgroundPrimary,
+              onSurface: AppColors.primary,
+            ),
+            textTheme: Theme.of(context).textTheme.copyWith(
+                  bodyLarge: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                  bodyMedium: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+          ),
+          child: child!,
+        );
+      },
     );
 
     if (pickedTime != null) {
@@ -243,11 +305,13 @@ class MedicineForm extends StatelessWidget {
       lable: 'Add Medcine',
       margin: AppMargin.medium.w,
       backgroundColor: AppColors.accent,
-      onTap: () {
+      onTap: () async {
         final Schedule schedule = Schedule(
           days: medcineFormState.selectedDays,
           times: medcineFormState.selectedTimes,
         );
+
+        // Add medicine schedule
         medicineBloc.add(
           MedicineScheduleAdded(
             medicineSchedule: MedicineSchedule(
@@ -261,20 +325,28 @@ class MedicineForm extends StatelessWidget {
             ),
           ),
         );
-        notificationBloc.add(
-          WeeklyNotificationScheduled(
-            notification: NotificationData(
-              id: index,
-              title: 'Medicine Time',
-              body: AppMessages.getMedicineNotificationMessage(
-                medcineFormState.dose,
-                medcineFormCubit.medicineNameController.text,
-                medcineFormState.type.name,
+
+        // Check if notifications are enabled before scheduling
+        final prefs = await SharedPreferences.getInstance();
+        final notificationsEnabled =
+            prefs.getBool('notifications_enabled') ?? true;
+
+        if (notificationsEnabled) {
+          notificationBloc.add(
+            WeeklyNotificationScheduled(
+              notification: NotificationData(
+                id: index,
+                title: 'Medicine Time',
+                body: AppMessages.getMedicineNotificationMessage(
+                  medcineFormState.dose,
+                  medcineFormCubit.medicineNameController.text,
+                  medcineFormState.type.name,
+                ),
+                schedule: schedule,
               ),
-              schedule: schedule,
             ),
-          ),
-        );
+          );
+        }
       },
     );
   }

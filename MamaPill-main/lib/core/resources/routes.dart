@@ -22,7 +22,7 @@ extension AppRoutesX on AppRoutes {
         return '/home';
       case AppRoutes.setting:
         return 'setting';
-    }
+      }
   }
 
   String get name {
@@ -39,6 +39,6 @@ extension AppRoutesX on AppRoutes {
         return 'Home';
       case AppRoutes.setting:
         return 'setting';
-    }
+      }
   }
 }

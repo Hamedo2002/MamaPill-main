@@ -31,6 +31,7 @@ dependencies:
   timezone: ^0.10.0
   sliver_tools: ^0.2.12
   flutter_sticky_header: ^0.7.0
+  shared_preferences: ^2.2.2
   # flutter_native_timezone: ^2.0.0
 
 

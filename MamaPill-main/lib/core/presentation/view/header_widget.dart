@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mama_pill/core/resources/assets.dart';
+import 'package:mama_pill/core/resources/colors.dart';
 import 'package:mama_pill/core/resources/routes.dart';
 import 'package:mama_pill/core/resources/values.dart';
 import 'package:mama_pill/features/authentication/presentation/controller/auth/bloc/auth_bloc.dart';
@@ -29,11 +30,21 @@ class _HeaderWidgetState extends State<HeaderWidget> {
             children: [
               Container(
                 padding: const EdgeInsets.only(left: AppPadding.p6),
-                child: Image.asset(
-                  AppAssets.logo,
-                  fit: BoxFit.fitWidth,
-                  height: 35,
-                  width: AppWidth.w126.w,
+                child: Text(
+                  'MamaPill',
+                  style: TextStyle(
+                    fontSize: 28.sp,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.primary,
+                    letterSpacing: 0.5,
+                    shadows: [
+                      Shadow(
+                        color: AppColors.primary.withOpacity(0.2),
+                        offset: const Offset(0, 2),
+                        blurRadius: 4,
+                      ),
+                    ],
+                  ),
                 ),
               ),
               const Spacer(),
