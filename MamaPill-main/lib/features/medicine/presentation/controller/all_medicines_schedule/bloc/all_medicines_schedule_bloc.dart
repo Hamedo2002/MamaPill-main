@@ -16,26 +16,50 @@ class AllMedicinesScheduleBloc
   final AuthBloc authBloc;
   late StreamSubscription<AuthState> authSubscription;
   final GetDispenserStreamUseCase getDispenserStreamUseCase;
-  late StreamSubscription<List<MedicineSchedule>> patientSubscription;
+  StreamSubscription<List<MedicineSchedule>>? patientSubscription;
+  
   AllMedicinesScheduleBloc(
     this.authBloc,
     this.getDispenserStreamUseCase,
   ) : super(const AllMedicinesScheduleState()) {
     on<AllDispensersFetched>(_onAllDispensersFetched);
 
+    // Start listening to current user's medicines immediately
+    final currentUser = authBloc.state.user;
+    if (currentUser.id != null && currentUser.id!.isNotEmpty) {
+      _startListeningToMedicines(currentUser.id!);
+    }
+
+    // Listen for auth state changes
     authSubscription = authBloc.stream.listen((authState) {
-      String patientId = authState.user.id!;
-      patientSubscription =
-          getDispenserStreamUseCase(patientId).listen((dispensers) {
-        add(AllDispensersFetched(dispensers: dispensers));
-      });
+      if (authState.user.id != null && authState.user.id!.isNotEmpty) {
+        _startListeningToMedicines(authState.user.id!);
+      }
     });
+  }
+
+  void _startListeningToMedicines(String patientId) {
+    // Cancel existing subscription if any
+    patientSubscription?.cancel();
+    
+    // Start new subscription
+    patientSubscription = getDispenserStreamUseCase(patientId).listen(
+      (dispensers) {
+        add(AllDispensersFetched(dispensers: dispensers));
+      },
+      onError: (error) {
+        add(AllDispensersFetched(dispensers: [], hasError: true));
+      },
+    );
   }
   FutureOr<void> _onAllDispensersFetched(
     AllDispensersFetched event,
     Emitter<AllMedicinesScheduleState> emit,
-  ) {
-    emit(state.copyWith(status: RequestStatus.loading));
+  ) async {
+    if (event.hasError) {
+      emit(state.copyWith(status: RequestStatus.failure));
+      return;
+    }
 
     emit(state.copyWith(
         status: RequestStatus.success, dispensers: event.dispensers));
@@ -44,7 +68,7 @@ class AllMedicinesScheduleBloc
   @override
   Future<void> close() {
     authSubscription.cancel();
-    patientSubscription.cancel();
+    patientSubscription?.cancel();
     return super.close();
   }
 }

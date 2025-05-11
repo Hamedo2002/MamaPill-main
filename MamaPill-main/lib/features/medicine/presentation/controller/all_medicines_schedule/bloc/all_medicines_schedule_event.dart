@@ -8,9 +8,10 @@ abstract class AllMedicinesScheduleEvent extends Equatable {
 }
 
 class AllDispensersFetched extends AllMedicinesScheduleEvent {
-  const AllDispensersFetched({required this.dispensers});
+  const AllDispensersFetched({required this.dispensers, this.hasError = false});
   final List<MedicineSchedule> dispensers;
+  final bool hasError;
 
   @override
-  List<Object> get props => [dispensers];
+  List<Object> get props => [dispensers, hasError];
 }
