@@ -5,7 +5,19 @@ import 'package:timezone/data/latest.dart' as tz;
 
 class TimeZoneHelper {
   static Future<void> init() async {
-    tz.initializeTimeZones();
+    try {
+      // Initialize timezone data
+      tz.initializeTimeZones();
+
+      // Set local timezone
+      final String timeZoneName = DateTime.now().timeZoneName;
+      tz.setLocalLocation(tz.getLocation(timeZoneName));
+
+      print('Timezone initialized: ${tz.local.name}');
+    } catch (e) {
+      print('Error initializing timezone: $e');
+      rethrow;
+    }
   }
 
   static tz.TZDateTime convertDateTimeToTimeZone(

@@ -7,6 +7,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // Define missing enum
 enum DeviceScreenType {
@@ -39,7 +40,14 @@ Future<void> main() async {
     await Firebase.initializeApp();
     Bloc.observer = MyBlocObserver();
     ServiceLocator.init();
-    LocalNotificationServices.init(initSchedule: true);
+
+    // Initialize notifications and store the result
+    final notificationsEnabled =
+        await LocalNotificationServices.init(initSchedule: true);
+
+    // Store the notification permission status
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('notifications_enabled', notificationsEnabled);
 
     runApp(const MyApp());
   } catch (e) {

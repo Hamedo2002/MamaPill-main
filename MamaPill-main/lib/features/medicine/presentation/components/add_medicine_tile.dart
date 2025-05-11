@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mama_pill/core/resources/colors.dart';
 import 'package:mama_pill/core/resources/values.dart';
 import 'package:mama_pill/core/utils/bottom_sheet_utils.dart';
+import 'package:mama_pill/core/utils/top_notification_utils.dart';
 
 import '../widgets/medicine_form.dart';
 
@@ -19,7 +20,19 @@ class AddMedicineTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () => BottomSheetUtils.showButtomSheet(
-          context, MedicineForm(patientId: patientId, index: index)),
+        context,
+        MedicineForm(
+          patientId: patientId,
+          index: index,
+          onSuccess: () {
+            TopNotificationUtils.showSuccessNotification(
+              context,
+              title: 'Success',
+              message: 'Medicine added successfully!',
+            );
+          },
+        ),
+      ),
       child: Container(
         margin: const EdgeInsets.only(right: 10).w,
         width: 120,

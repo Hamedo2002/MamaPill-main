@@ -21,20 +21,54 @@ class MedicineScheduleModel extends MedicineSchedule {
           schedule: schedule,
         );
 
-  factory MedicineScheduleModel.fromJson(Map<String, dynamic> json) =>
-      MedicineScheduleModel(
-        index: json["index"],
-        id: json["id"],
-        userId: json["userId"],
-        medicine: json["medicine"],
-        dose: json["dose"],
-        type: json["type"] == "capsule"
-            ? MedicineType.capsule
-            : json["type"] == "tablet"
-                ? MedicineType.tablet
-                : json["type"] == "liquid"
-                    ? MedicineType.liquid
-                    : MedicineType.injection,
-        schedule: ScheduleModel.fromJson(json["schedule"]),
-      );
+  factory MedicineScheduleModel.fromJson(Map<String, dynamic> json) {
+    // Ensure all required fields are present
+    if (!json.containsKey('id') ||
+        !json.containsKey('index') ||
+        !json.containsKey('userId') ||
+        !json.containsKey('medicine') ||
+        !json.containsKey('dose') ||
+        !json.containsKey('type') ||
+        !json.containsKey('schedule')) {
+      throw FormatException(
+          'Missing required fields in medicine schedule data');
+    }
+
+    return MedicineScheduleModel(
+      id: json["id"] as String,
+      index: json["index"] as int,
+      userId: json["userId"] as String,
+      medicine: json["medicine"] as String,
+      dose: json["dose"] as int,
+      type: _parseMedicineType(json["type"] as String),
+      schedule:
+          ScheduleModel.fromJson(json["schedule"] as Map<String, dynamic>),
+    );
+  }
+
+  static MedicineType _parseMedicineType(String type) {
+    switch (type.toLowerCase()) {
+      case 'capsule':
+        return MedicineType.capsule;
+      case 'tablet':
+        return MedicineType.tablet;
+      case 'liquid':
+        return MedicineType.liquid;
+      case 'injection':
+        return MedicineType.injection;
+      default:
+        throw FormatException('Invalid medicine type: $type');
+    }
+  }
+
+  @override
+  Map<String, dynamic> toJson() => {
+        "id": id,
+        "index": index,
+        "userId": userId,
+        "medicine": medicine,
+        "dose": dose,
+        "type": type.name,
+        "schedule": (schedule as ScheduleModel).toJson(),
+      };
 }

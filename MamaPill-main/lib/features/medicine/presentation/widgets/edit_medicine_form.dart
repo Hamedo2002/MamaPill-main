@@ -12,6 +12,7 @@ import 'package:mama_pill/core/resources/values.dart';
 import 'package:mama_pill/core/services/service_locator.dart';
 import 'package:mama_pill/core/utils/enums.dart';
 import 'package:mama_pill/core/utils/extensions.dart';
+import 'package:mama_pill/core/utils/top_notification_utils.dart';
 import 'package:mama_pill/features/medicine/domain/entities/medicine_schedule.dart';
 import 'package:mama_pill/features/medicine/presentation/controller/medicine_form/cubit/medicine_form_cubit.dart';
 import 'package:mama_pill/features/notifications/presentation/controller/bloc/notification_bloc.dart';
@@ -51,6 +52,9 @@ class _EditDispenserFormState extends State<EditDispenserForm> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final medicineTypeColor = _medicineFormCubit.state.type.color;
+    final medicineTypeIcon = _medicineFormCubit.state.type.icon;
     return MultiBlocProvider(
       providers: [
         BlocProvider<MedicineFormCubit>.value(value: _medicineFormCubit),
@@ -68,163 +72,178 @@ class _EditDispenserFormState extends State<EditDispenserForm> {
           builder: (context, medicineFormState) {
             return BlocBuilder<MedicineScheduleBloc, MedicineScheduleState>(
                 builder: (context, medicineScheduleState) {
-              final screenWidth = MediaQuery.of(context).size.width;
-              return ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: screenWidth * 0.95),
-                child: SingleChildScrollView(
-                  child: Padding(
-                    padding: EdgeInsets.only(
-                      bottom: MediaQuery.of(context).viewInsets.bottom,
-                      left: 8.w,
-                      right: 8.w,
+              return Stack(
+                children: [
+                  Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.surface,
+                      borderRadius:
+                          BorderRadius.vertical(top: Radius.circular(28)),
                     ),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        _dragLable(),
-                        SizedBox(height: 8.h),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            _medicineNameTextField(context),
-                            SizedBox(height: 8.h),
-                            _doseCounter(context),
-                          ],
-                        ),
-                        SizedBox(height: 8.h),
-                        _scheduleTextField(context),
-                        SizedBox(height: 8.h),
-                        _timeIntervalsWidget(
-                            context, _medicineFormCubit, medicineFormState),
-                        SizedBox(height: 8.h),
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 16.w),
+                        // Header bar
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                              vertical: 10, horizontal: 20),
+                          decoration: BoxDecoration(
+                            color: medicineTypeColor.withOpacity(0.15),
+                            borderRadius:
+                                BorderRadius.vertical(top: Radius.circular(28)),
+                          ),
                           child: Row(
                             children: [
-                              Expanded(
-                                child: medicineScheduleState.saveStatus ==
-                                        RequestStatus.loading
-                                    ? const CustomProgressIndicator()
-                                    : CustomButton(
-                                        height: AppHeight.h40.h,
-                                        lable: 'Save Changes',
-                                        backgroundColor: AppColors.primary,
-                                        onTap: () {
-                                          // Get the current cubit and bloc
-                                          final medicineFormCubit =
-                                              context.read<MedicineFormCubit>();
-                                          final medicineScheduleBloc = context
-                                              .read<MedicineScheduleBloc>();
-
-                                          // Create updated medicine schedule
-                                          final updatedMedicine =
-                                              MedicineSchedule(
-                                            id: widget.medicine.id,
-                                            index: widget.medicine.index,
-                                            userId: widget.medicine.userId,
-                                            medicine: medicineFormCubit
-                                                .medicineNameController.text,
-                                            type: medicineFormCubit.state.type,
-                                            dose: medicineFormCubit.state.dose,
-                                            schedule: ScheduleModel(
-                                              days: medicineFormCubit
-                                                  .state.selectedDays,
-                                              times: medicineFormCubit
-                                                  .state.selectedTimes,
-                                            ),
-                                          );
-
-                                          // Cancel existing notification
-                                          final notificationBloc =
-                                              context.read<NotificationBloc>();
-                                          notificationBloc.add(
-                                            NotificationCanceled(
-                                              id: widget.medicine.index,
-                                              schedule:
-                                                  widget.medicine.schedule,
-                                            ),
-                                          );
-
-                                          // Dispatch update event
-                                          medicineScheduleBloc.add(
-                                              MedicineScheduleAdded(
-                                                  medicineSchedule:
-                                                      updatedMedicine));
-
-                                          // Check if notifications are enabled before scheduling new ones
-                                          final prefs =
-                                              SharedPreferences.getInstance();
-                                          final notificationsEnabled =
-                                              prefs.then((prefs) =>
-                                                  prefs.getBool(
-                                                      'notifications_enabled') ??
-                                                  true);
-
-                                          notificationsEnabled.then((enabled) {
-                                            if (enabled) {
-                                              // Schedule new notification
-                                              notificationBloc.add(
-                                                WeeklyNotificationScheduled(
-                                                  notification:
-                                                      NotificationData(
-                                                    id: widget.medicine.index,
-                                                    title: 'Medicine Time',
-                                                    body:
-                                                        'Take ${medicineFormCubit.medicineNameController.text} - ${medicineFormCubit.state.dose} ${medicineFormCubit.state.type.name}',
-                                                    schedule: ScheduleModel(
-                                                      days: medicineFormCubit
-                                                          .state.selectedDays,
-                                                      times: medicineFormCubit
-                                                          .state.selectedTimes,
-                                                    ),
-                                                  ),
-                                                ),
-                                              );
-                                            }
-                                          });
-                                        },
-                                      ),
+                              Container(
+                                width: 40,
+                                height: 40,
+                                decoration: BoxDecoration(
+                                  color: medicineTypeColor.withOpacity(0.2),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Center(
+                                  child: ImageIcon(
+                                    AssetImage(medicineTypeIcon),
+                                    size: 22,
+                                    color: medicineTypeColor,
+                                  ),
+                                ),
                               ),
-                              SizedBox(width: 8.w),
+                              SizedBox(width: 16),
                               Expanded(
-                                child: medicineScheduleState.deleteStatus ==
-                                        RequestStatus.loading
-                                    ? const CustomProgressIndicator()
-                                    : CustomButton(
-                                        height: 36.h,
-                                        lable: 'Delete Medicine',
-                                        margin: EdgeInsets.zero,
-                                        backgroundColor: Colors.red,
-                                        textColor: Colors.white,
-                                        onTap: () {
-                                          final notificationBloc =
-                                              context.read<NotificationBloc>();
-                                          final MedicineScheduleBloc
-                                              medicineScheduleBloc = context
-                                                  .read<MedicineScheduleBloc>();
-                                          notificationBloc.add(
-                                            NotificationCanceled(
-                                              id: widget.medicine.index,
-                                              schedule:
-                                                  widget.medicine.schedule,
-                                            ),
-                                          );
-                                          medicineScheduleBloc.add(
-                                              MedicineScheduleDeleted(
-                                                  medicineId:
-                                                      widget.medicine.id));
-                                        },
-                                      ),
+                                child: Text(
+                                  'Edit Medicine',
+                                  style: theme.textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: medicineTypeColor,
+                                    fontSize: 16,
+                                  ),
+                                ),
                               ),
                             ],
                           ),
                         ),
-                        SizedBox(height: 8.h),
+                        // Form sections
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 2),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              _medicineNameTextField(context),
+                              Divider(height: 16),
+                              _doseCounter(context),
+                              Divider(height: 16),
+                              _scheduleTextField(context),
+                              Divider(height: 16),
+                              _timeIntervalsWidget(context, _medicineFormCubit,
+                                  medicineFormState),
+                              SizedBox(height: 36), // space for floating button
+                            ],
+                          ),
+                        ),
                       ],
                     ),
                   ),
-                ),
+                  // Floating Save button
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+                      child: SizedBox(
+                        width: double.infinity,
+                        height: 48,
+                        child: medicineScheduleState.saveStatus ==
+                                RequestStatus.loading
+                            ? const CustomProgressIndicator()
+                            : ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: medicineTypeColor,
+                                  shape: StadiumBorder(),
+                                  elevation: 2,
+                                ),
+                                onPressed: () async {
+                                  final medicineFormCubit =
+                                      context.read<MedicineFormCubit>();
+                                  final medicineScheduleBloc =
+                                      context.read<MedicineScheduleBloc>();
+                                  final updatedMedicine = MedicineSchedule(
+                                    id: widget.medicine.id,
+                                    index: widget.medicine.index,
+                                    userId: widget.medicine.userId,
+                                    medicine: medicineFormCubit
+                                        .medicineNameController.text,
+                                    type: medicineFormCubit.state.type,
+                                    dose: medicineFormCubit.state.dose,
+                                    schedule: ScheduleModel(
+                                      days:
+                                          medicineFormCubit.state.selectedDays,
+                                      times:
+                                          medicineFormCubit.state.selectedTimes,
+                                    ),
+                                  );
+                                  final notificationBloc =
+                                      context.read<NotificationBloc>();
+                                  notificationBloc.add(
+                                    NotificationCanceled(
+                                      id: widget.medicine.index,
+                                      schedule: widget.medicine.schedule,
+                                    ),
+                                  );
+                                  medicineScheduleBloc.add(
+                                    MedicineScheduleAdded(
+                                        medicineSchedule: updatedMedicine),
+                                  );
+
+                                  // Show success notification
+                                  TopNotificationUtils.showSuccessNotification(
+                                    context,
+                                    title: 'Medicine Updated',
+                                    message:
+                                        '${medicineFormCubit.medicineNameController.text} has been updated successfully!',
+                                  );
+
+                                  final prefs =
+                                      await SharedPreferences.getInstance();
+                                  final notificationsEnabled =
+                                      prefs.getBool('notifications_enabled') ??
+                                          true;
+                                  if (notificationsEnabled) {
+                                    notificationBloc.add(
+                                      WeeklyNotificationScheduled(
+                                        notification: NotificationData(
+                                          id: widget.medicine.index,
+                                          title: 'Medicine Time',
+                                          body:
+                                              'Take ${medicineFormCubit.medicineNameController.text} - ${medicineFormCubit.state.dose} ${medicineFormCubit.state.type.name}',
+                                          schedule: ScheduleModel(
+                                            days: medicineFormCubit
+                                                .state.selectedDays,
+                                            times: medicineFormCubit
+                                                .state.selectedTimes,
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                },
+                                child: Text(
+                                  'Save Changes',
+                                  style: theme.textTheme.titleMedium?.copyWith(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
+                      ),
+                    ),
+                  ),
+                ],
               );
             });
           },

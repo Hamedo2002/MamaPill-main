@@ -14,6 +14,8 @@ import 'package:mama_pill/core/resources/values.dart';
 import 'package:mama_pill/core/services/service_locator.dart';
 import 'package:mama_pill/core/utils/enums.dart';
 import 'package:mama_pill/core/utils/extensions.dart';
+import 'package:mama_pill/core/utils/snack_bar_utils.dart';
+import 'package:mama_pill/core/utils/top_notification_utils.dart';
 import 'package:mama_pill/features/medicine/domain/entities/medicine_schedule.dart';
 import 'package:mama_pill/features/medicine/domain/entities/schedule.dart';
 import 'package:mama_pill/features/medicine/presentation/controller/medicine_form/cubit/medicine_form_cubit.dart';
@@ -27,9 +29,11 @@ class MedicineForm extends StatelessWidget {
     super.key,
     required this.patientId,
     required this.index,
+    this.onSuccess,
   });
   final String patientId;
   final int index;
+  final VoidCallback? onSuccess;
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +46,14 @@ class MedicineForm extends StatelessWidget {
       child: BlocListener<MedicineScheduleBloc, MedicineScheduleState>(
         listener: (context, state) {
           if (state.saveStatus == RequestStatus.success) {
-            Navigator.pop(context);
+            if (onSuccess != null) onSuccess!();
+            Navigator.of(context, rootNavigator: true).pop();
+          } else if (state.saveStatus == RequestStatus.failure) {
+            SnackBarUtils.showErrorSnackBar(
+              context,
+              'Failed to add medicine',
+              'Please try again',
+            );
           }
         },
         child: BlocBuilder<MedicineFormCubit, MedicineFormState>(
@@ -125,7 +136,7 @@ class MedicineForm extends StatelessWidget {
         margin: const EdgeInsets.fromLTRB(8, 8, 16, 8).w,
         content: Container(
           width: 70.w,
-          child: Row(
+          child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
@@ -135,12 +146,11 @@ class MedicineForm extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              SizedBox(width: 4.w),
+              SizedBox(height: 4.h),
               GestureDetector(
                 onTap: () => medcineFormCubit.toggleUnit(),
                 child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 3.h),
-                  constraints: BoxConstraints(minWidth: 22.5.w),
+                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
                   decoration: BoxDecoration(
                     color: AppColors.primary.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(6.r),
@@ -213,9 +223,9 @@ class MedicineForm extends StatelessWidget {
           child: Text(
             '${medcineFormState.dose}',
             style: textTheme.bodyMedium?.copyWith(
-            fontSize: 15.sp,
-            fontWeight: FontWeight.bold,
-          ),
+              fontSize: 15.sp,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
         leading: GestureDetector(
@@ -363,28 +373,63 @@ class MedicineForm extends StatelessWidget {
     final notificationBloc = context.read<NotificationBloc>();
     return CustomButton(
       height: AppHeight.h40.h,
-      lable: 'Add Medcine',
+      lable: 'Add Medicine',
       margin: AppMargin.medium.w,
       backgroundColor: AppColors.accent,
       onTap: () async {
+        // Validate input
+        if (medcineFormCubit.medicineNameController.text.isEmpty) {
+          TopNotificationUtils.showErrorNotification(
+            context,
+            title: 'Validation Error',
+            message: 'Please enter a medicine name',
+          );
+          return;
+        }
+
+        if (medcineFormState.selectedDays.isEmpty) {
+          TopNotificationUtils.showErrorNotification(
+            context,
+            title: 'Validation Error',
+            message: 'Please select at least one day',
+          );
+          return;
+        }
+
+        if (medcineFormState.selectedTimes.isEmpty) {
+          TopNotificationUtils.showErrorNotification(
+            context,
+            title: 'Validation Error',
+            message: 'Please select at least one time',
+          );
+          return;
+        }
+
         final Schedule schedule = Schedule(
           days: medcineFormState.selectedDays,
           times: medcineFormState.selectedTimes,
         );
 
         // Add medicine schedule
-        medicineBloc.add(
-          MedicineScheduleAdded(
-            medicineSchedule: MedicineSchedule(
-              id: IdGenerator.generateMedicineId(patientId, index),
-              index: index,
-              userId: patientId,
-              medicine: medcineFormCubit.medicineNameController.text,
-              dose: medcineFormState.dose,
-              type: medcineFormState.type,
-              schedule: schedule,
-            ),
-          ),
+        final medicineSchedule = MedicineSchedule(
+          id: '',
+          index: index,
+          userId: patientId,
+          medicine: medcineFormCubit.medicineNameController.text,
+          dose: medcineFormState.dose,
+          type: medcineFormState.type,
+          schedule: schedule,
+        );
+
+        medicineBloc
+            .add(MedicineScheduleAdded(medicineSchedule: medicineSchedule));
+
+        // Show success notification
+        TopNotificationUtils.showSuccessNotification(
+          context,
+          title: 'Medicine Added',
+          message:
+              '${medcineFormCubit.medicineNameController.text} has been added successfully!',
         );
 
         // Check if notifications are enabled before scheduling

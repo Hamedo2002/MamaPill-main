@@ -4,7 +4,7 @@ class MedicineFormState extends Equatable {
   const MedicineFormState({
     this.id = '',
     this.medicine = '',
-    this.dose = 0,
+    this.dose = 1,
     this.selectedTimes = const [],
     this.selectedDays = const [],
     this.type = MedicineType.capsule,

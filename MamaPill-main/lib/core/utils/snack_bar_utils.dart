@@ -5,14 +5,17 @@ import 'package:mama_pill/core/resources/values.dart';
 
 class SnackBarUtils {
   static void showSnackBar(BuildContext context, String message) {
-    final snackBar = SnackBar(content: Text(message));
+    final snackBar = SnackBar(
+      behavior: SnackBarBehavior.floating,
+      margin: EdgeInsets.all(AppWidth.w16.w),
+      content: Text(message),
+    );
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   static void showErrorSnackBar(
       BuildContext context, String errorTitle, String errorMessage) {
     final TextTheme textTheme = Theme.of(context).textTheme;
-    final bottomMargin = AppHeight.screenHeight() - AppHeight.h120.h;
     final snackBar = SnackBar(
       behavior: SnackBarBehavior.floating,
       dismissDirection: DismissDirection.up,
@@ -20,8 +23,7 @@ class SnackBarUtils {
       shape: RoundedRectangleBorder(borderRadius: AppBorderRadius.medium),
       elevation: 0,
       backgroundColor: AppColors.backgroundPrimary,
-      margin:
-          EdgeInsets.fromLTRB(AppWidth.w16, 0, AppWidth.w16, bottomMargin).w,
+      margin: EdgeInsets.all(AppWidth.w16.w),
       content: SizedBox(
         child: Row(
           children: [
@@ -30,6 +32,7 @@ class SnackBarUtils {
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
                     errorTitle,
