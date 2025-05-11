@@ -24,16 +24,42 @@ class SettingsView extends StatefulWidget {
   State<SettingsView> createState() => _SettingsViewState();
 }
 
-class _SettingsViewState extends State<SettingsView> {
+class _SettingsViewState extends State<SettingsView> with SingleTickerProviderStateMixin {
   bool _notificationsEnabled = true;
   late NotificationBloc _notificationBloc;
   static const String _notificationsKey = 'notifications_enabled';
+  
+  // Initialize with default values to avoid LateInitializationError
+  late AnimationController _animationController = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 800),
+  );
+  late Animation<double> _fadeAnimation = CurvedAnimation(
+    parent: _animationController,
+    curve: Curves.easeInOut,
+  );
+  late Animation<Offset> _slideAnimation = Tween<Offset>(
+    begin: const Offset(0, 0.1),
+    end: Offset.zero,
+  ).animate(CurvedAnimation(
+    parent: _animationController,
+    curve: Curves.easeOutQuart,
+  ));
 
   @override
   void initState() {
     super.initState();
     _notificationBloc = sl<NotificationBloc>();
     _loadNotificationState();
+    
+    // Start the animation
+    _animationController.forward();
+  }
+  
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadNotificationState() async {
@@ -98,34 +124,51 @@ class _SettingsViewState extends State<SettingsView> {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final titleStyle = textTheme.titleMedium!.copyWith(fontSize: 16.sp);
+    final titleStyle = textTheme.titleMedium!.copyWith(
+      fontSize: 22.sp,
+      fontWeight: FontWeight.bold,
+      letterSpacing: 0.5,
+    );
     final UserProfile user = widget.authBloc.state.user;
     return Scaffold(
+      backgroundColor: AppColors.backgroundSecondary.withOpacity(0.97),
       appBar: AppBar(
+        elevation: 0,
         toolbarHeight: AppHeight.h50.h,
-        title: Text('settings', style: titleStyle),
+        title: Text('Settings', style: titleStyle),
         centerTitle: true,
         leading: const CustomBackButton(),
         backgroundColor: AppColors.backgroundSecondary,
       ),
       body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16.w),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(height: 24.h),
-            _accountSettings(user, context),
-            SizedBox(height: 32.h),
-            Text(
-              'Preferences',
-              style: textTheme.titleMedium?.copyWith(
-                color: AppColors.primary,
-                fontWeight: FontWeight.bold,
-              ),
+        padding: EdgeInsets.symmetric(horizontal: 20.w),
+        child: FadeTransition(
+          opacity: _fadeAnimation,
+          child: SlideTransition(
+            position: _slideAnimation,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(height: 28.h),
+                _accountSettings(user, context),
+                SizedBox(height: 36.h),
+                Padding(
+                  padding: EdgeInsets.only(left: 8.w),
+                  child: Text(
+                    'Preferences',
+                    style: textTheme.titleMedium?.copyWith(
+                      color: AppColors.primary,
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ),
+                SizedBox(height: 20.h),
+                _settingsList(context),
+              ],
             ),
-            SizedBox(height: 16.h),
-            _settingsList(context),
-          ],
+          ),
         ),
       ),
     );
@@ -133,44 +176,64 @@ class _SettingsViewState extends State<SettingsView> {
 
   Container _accountSettings(UserProfile user, BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final username = user.username ?? 'User';
-    final email = user.email ?? 'No email';
+    
+    // Get the actual username from the user profile
+    // If username is null or empty, try to use email (up to @ symbol) as fallback
+    String displayName;
+    if (user.username != null && user.username!.isNotEmpty) {
+      displayName = user.username!;
+    } else if (user.email != null && user.email!.isNotEmpty) {
+      // Extract name from email (part before @)
+      displayName = user.email!.split('@')[0];
+      // Capitalize first letter
+      if (displayName.isNotEmpty) {
+        displayName = displayName[0].toUpperCase() + displayName.substring(1);
+      }
+    } else {
+      // Final fallback
+      displayName = 'User';
+    }
 
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(16.r),
+      padding: EdgeInsets.symmetric(horizontal: 20.r, vertical: 22.r),
       decoration: BoxDecoration(
         color: AppColors.backgroundPrimary,
-        borderRadius: BorderRadius.circular(12.r),
+        borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 15,
+            spreadRadius: 1,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
       child: Row(
         children: [
-          CircleAvatar(
-            radius: AppSize.s24.r,
-            backgroundColor: AppColors.primary.withOpacity(0.1),
-            child: Text(
-              username.isNotEmpty ? username[0].toUpperCase() : 'U',
-              style: const TextStyle(
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
+          Container(
+            padding: EdgeInsets.all(3.r),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(color: AppColors.primary.withOpacity(0.3), width: 2),
+            ),
+            child: CircleAvatar(
+              radius: AppSize.s24.r,
+              backgroundColor: AppColors.primary.withOpacity(0.15),
+              child: Icon(
+                Icons.person,
                 color: AppColors.primary,
+                size: 28.r,
               ),
             ),
           ),
           SizedBox(width: AppWidth.w20.w),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(username, style: textTheme.titleMedium),
-              Text(email, style: textTheme.titleSmall),
-            ],
+          Text(
+            displayName, 
+            style: textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+              fontSize: 18.sp,
+            )
           ),
         ],
       ),
@@ -181,41 +244,60 @@ class _SettingsViewState extends State<SettingsView> {
     return Container(
       decoration: BoxDecoration(
         color: AppColors.backgroundPrimary,
-        borderRadius: BorderRadius.circular(12.r),
+        borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 15,
+            spreadRadius: 1,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
       child: Column(
         children: [
-          ListTile(
-            leading: const Icon(Icons.notifications_outlined),
-            title: const Text('Notifications'),
-            trailing: Switch(
-              value: _notificationsEnabled,
-              onChanged: _toggleNotifications,
-              activeColor: AppColors.primary,
-              activeTrackColor: AppColors.primary.withOpacity(0.5),
-              inactiveThumbColor: Colors.transparent,
-              inactiveTrackColor: Colors.grey.withOpacity(0.3),
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: 6.h),
+            child: ListTile(
+              contentPadding: EdgeInsets.symmetric(horizontal: 20.w),
+              leading: Icon(
+                Icons.notifications_outlined,
+                color: AppColors.primary,
+                size: 26.r,
+              ),
+              title: Text(
+                'Notifications',
+                style: TextStyle(
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              trailing: Switch(
+                value: _notificationsEnabled,
+                onChanged: _toggleNotifications,
+                activeColor: AppColors.primary,
+                activeTrackColor: AppColors.primary.withOpacity(0.5),
+                inactiveThumbColor: Colors.transparent,
+                inactiveTrackColor: Colors.grey.withOpacity(0.3),
+              ),
             ),
           ),
           Divider(
             height: 0,
             thickness: 1,
             indent: AppWidth.w52.w,
+            endIndent: 20.w,
             color: AppColors.divider.withOpacity(0.2),
           ),
-          SettingItem(
-            label: 'Logout',
-            icon: Icons.logout_outlined,
-            onTap: () => widget.authBloc.add(AuthLogoutRequested()),
-            color: Colors.red,
-            isLast: true,
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: 6.h),
+            child: SettingItem(
+              label: 'Logout',
+              icon: Icons.logout_outlined,
+              onTap: () => widget.authBloc.add(AuthLogoutRequested()),
+              color: Colors.red,
+              isLast: true,
+            ),
           ),
         ],
       ),
