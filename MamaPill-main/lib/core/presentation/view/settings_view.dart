@@ -10,19 +10,19 @@ import 'package:mama_pill/core/services/local_notification_services.dart';
 import 'package:mama_pill/features/authentication/domain/entities/user_profile.dart';
 import 'package:mama_pill/features/authentication/presentation/controller/auth/bloc/auth_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:io' show Platform;
+import 'package:flutter/foundation.dart';
 
 class SettingsView extends StatefulWidget {
-  const SettingsView({
-    super.key,
-    required this.authBloc,
-  });
+  const SettingsView({super.key, required this.authBloc});
   final AuthBloc authBloc;
 
   @override
   State<SettingsView> createState() => _SettingsViewState();
 }
 
-class _SettingsViewState extends State<SettingsView> with SingleTickerProviderStateMixin {
+class _SettingsViewState extends State<SettingsView>
+    with SingleTickerProviderStateMixin {
   (IconData, Color) _getRoleIcon(UserRole? role) {
     switch (role) {
       case UserRole.doctor:
@@ -35,10 +35,11 @@ class _SettingsViewState extends State<SettingsView> with SingleTickerProviderSt
         return (Icons.person_outlined, Colors.grey);
     }
   }
+
   bool _notificationsEnabled = true;
 
   static const String _notificationsKey = 'notifications_enabled';
-  
+
   // Initialize with default values to avoid LateInitializationError
   late AnimationController _animationController = AnimationController(
     vsync: this,
@@ -51,21 +52,20 @@ class _SettingsViewState extends State<SettingsView> with SingleTickerProviderSt
   late Animation<Offset> _slideAnimation = Tween<Offset>(
     begin: const Offset(0, 0.1),
     end: Offset.zero,
-  ).animate(CurvedAnimation(
-    parent: _animationController,
-    curve: Curves.easeOutQuart,
-  ));
+  ).animate(
+    CurvedAnimation(parent: _animationController, curve: Curves.easeOutQuart),
+  );
 
   @override
   void initState() {
     super.initState();
 
     _loadNotificationState();
-    
+
     // Start the animation
     _animationController.forward();
   }
-  
+
   @override
   void dispose() {
     _animationController.dispose();
@@ -91,12 +91,9 @@ class _SettingsViewState extends State<SettingsView> with SingleTickerProviderSt
   Future<void> _checkNotificationStatus() async {
     final bool? permission = await LocalNotificationServices.notification
         .resolvePlatformSpecificImplementation<
-            IOSFlutterLocalNotificationsPlugin>()
-        ?.requestPermissions(
-          alert: true,
-          badge: true,
-          sound: true,
-        );
+          IOSFlutterLocalNotificationsPlugin
+        >()
+        ?.requestPermissions(alert: true, badge: true, sound: true);
     setState(() {
       _notificationsEnabled = permission ?? false;
     });
@@ -105,20 +102,35 @@ class _SettingsViewState extends State<SettingsView> with SingleTickerProviderSt
 
   Future<void> _toggleNotifications(bool value) async {
     if (value) {
-      final bool? permission = await LocalNotificationServices.notification
-          .resolvePlatformSpecificImplementation<
-              IOSFlutterLocalNotificationsPlugin>()
-          ?.requestPermissions(
-            alert: true,
-            badge: true,
-            sound: true,
-          );
+      bool? permission;
+
+      if (Platform.isAndroid) {
+        final AndroidFlutterLocalNotificationsPlugin? androidImplementation =
+            LocalNotificationServices.notification
+                .resolvePlatformSpecificImplementation<
+                  AndroidFlutterLocalNotificationsPlugin
+                >();
+        permission =
+            await androidImplementation?.requestNotificationsPermission();
+      } else if (Platform.isIOS) {
+        final IOSFlutterLocalNotificationsPlugin? iOSImplementation =
+            LocalNotificationServices.notification
+                .resolvePlatformSpecificImplementation<
+                  IOSFlutterLocalNotificationsPlugin
+                >();
+        permission = await iOSImplementation?.requestPermissions(
+          alert: true,
+          badge: true,
+          sound: true,
+        );
+      }
+
       setState(() {
         _notificationsEnabled = permission ?? false;
       });
 
       if (permission == true) {
-        // Reinitialize notifications
+        // Reinitialize notifications with full initialization
         await LocalNotificationServices.init(initSchedule: true);
       }
     } else {
@@ -186,7 +198,7 @@ class _SettingsViewState extends State<SettingsView> with SingleTickerProviderSt
 
   Container _accountSettings(UserProfile user, BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    
+
     // Get the actual username from the user profile
     // If username is null or empty, try to use email (up to @ symbol) as fallback
     String displayName;
@@ -225,7 +237,10 @@ class _SettingsViewState extends State<SettingsView> with SingleTickerProviderSt
             padding: EdgeInsets.all(3.r),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(color: _getRoleIcon(user.role).$2.withOpacity(0.3), width: 2),
+              border: Border.all(
+                color: _getRoleIcon(user.role).$2.withOpacity(0.3),
+                width: 2,
+              ),
             ),
             child: CircleAvatar(
               radius: AppSize.s24.r,
@@ -239,11 +254,11 @@ class _SettingsViewState extends State<SettingsView> with SingleTickerProviderSt
           ),
           SizedBox(width: AppWidth.w20.w),
           Text(
-            displayName, 
+            displayName,
             style: textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.w600,
               fontSize: 18.sp,
-            )
+            ),
           ),
         ],
       ),
@@ -277,10 +292,7 @@ class _SettingsViewState extends State<SettingsView> with SingleTickerProviderSt
               ),
               title: Text(
                 'Notifications',
-                style: TextStyle(
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.w500,
-                ),
+                style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500),
               ),
               trailing: Switch(
                 value: _notificationsEnabled,
