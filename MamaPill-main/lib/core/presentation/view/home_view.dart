@@ -23,7 +23,8 @@ class HomeView extends StatefulWidget {
   State<HomeView> createState() => _HomeViewState();
 }
 
-class _HomeViewState extends State<HomeView> with AutomaticKeepAliveClientMixin {
+class _HomeViewState extends State<HomeView>
+    with AutomaticKeepAliveClientMixin {
   late final List<BlocBase> _blocs;
   bool _mounted = true;
 
@@ -41,9 +42,6 @@ class _HomeViewState extends State<HomeView> with AutomaticKeepAliveClientMixin 
   @override
   void dispose() {
     _mounted = false;
-    for (final bloc in _blocs) {
-      bloc.close();
-    }
     super.dispose();
   }
 
@@ -55,10 +53,13 @@ class _HomeViewState extends State<HomeView> with AutomaticKeepAliveClientMixin 
     super.build(context);
     // Debug logging for user role and auth state
     print('HomeView - Auth state: ${widget.authBloc.state}');
-    print('HomeView - Current user role: ${widget.authBloc.state.user.role.name}');
+    print(
+      'HomeView - Current user role: ${widget.authBloc.state.user.role.name}',
+    );
     print('HomeView - Current user ID: ${widget.authBloc.state.user.id}');
     print(
-        'HomeView - Is authenticated: ${widget.authBloc.state.status == AppStatus.authenticated}');
+      'HomeView - Is authenticated: ${widget.authBloc.state.status == AppStatus.authenticated}',
+    );
     return MultiBlocProvider(
       providers: [
         BlocProvider.value(value: widget.authBloc),
@@ -76,12 +77,13 @@ class _HomeViewState extends State<HomeView> with AutomaticKeepAliveClientMixin 
               title: 'Success',
               message: state.message,
             );
-            
+
             // Refresh the list after showing notification
             if (_mounted) {
               Future.delayed(const Duration(milliseconds: 500), () {
                 if (_mounted) {
-                  final allMedicinesBloc = context.read<AllMedicinesScheduleBloc>();
+                  final allMedicinesBloc =
+                      context.read<AllMedicinesScheduleBloc>();
                   final userId = widget.authBloc.state.user.id;
                   if (userId != null && userId.isNotEmpty) {
                     allMedicinesBloc.add(AllDispensersFetched(dispensers: []));
@@ -109,19 +111,19 @@ class _HomeViewState extends State<HomeView> with AutomaticKeepAliveClientMixin 
                   const CalendarWidget(),
                   const SizedBox(height: 20),
                   // Today's Medications
-                  DispenserWidget(
-                    patientId: '',
-                    showTodayOnly: true,
-                  ),
+                  DispenserWidget(patientId: '', showTodayOnly: true),
                   const SizedBox(height: 20),
                   // Patient selection for staff only
                   BlocBuilder<AuthBloc, AuthState>(
                     builder: (context, state) {
-                      if (state.user.role == UserRole.staff || state.user.role == UserRole.doctor) {
-                        return Column(children: const [
-                          PatientMedicineList(),
-                          SizedBox(height: 20),
-                        ]);
+                      if (state.user.role == UserRole.staff ||
+                          state.user.role == UserRole.doctor) {
+                        return Column(
+                          children: const [
+                            PatientMedicineList(),
+                            SizedBox(height: 20),
+                          ],
+                        );
                       }
                       return const SizedBox.shrink();
                     },
@@ -129,10 +131,11 @@ class _HomeViewState extends State<HomeView> with AutomaticKeepAliveClientMixin 
                   // Medicines section
                   BlocBuilder<AuthBloc, AuthState>(
                     builder: (context, state) {
-                      final patientId = state.user.role == UserRole.patient
-                          ? state.user.patientId ?? ''
-                          : '';
-                      
+                      final patientId =
+                          state.user.role == UserRole.patient
+                              ? state.user.patientId ?? ''
+                              : '';
+
                       return DispenserWidget(
                         patientId: patientId,
                         showTodayOnly: false,

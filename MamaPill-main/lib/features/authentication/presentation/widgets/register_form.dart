@@ -14,11 +14,7 @@ import 'package:mama_pill/core/utils/enums.dart';
 import 'package:mama_pill/features/authentication/presentation/controller/sign_up/cubit/sign_up_cubit.dart';
 
 class RegisterForm extends StatefulWidget {
-  const RegisterForm({
-    super.key,
-    required this.cubit,
-    required this.state,
-  });
+  const RegisterForm({super.key, required this.cubit, required this.state});
 
   final SignUpCubit cubit;
   final SignUpState state;
@@ -35,10 +31,7 @@ Widget _roleDropdown(BuildContext context, SignUpCubit cubit) {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Colors.grey.shade200,
-          width: 1,
-        ),
+        border: Border.all(color: Colors.grey.shade200, width: 1),
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<UserRole>(
@@ -61,49 +54,48 @@ Widget _roleDropdown(BuildContext context, SignUpCubit cubit) {
               ),
             ],
           ),
-          items: [UserRole.patient, UserRole.doctor, UserRole.staff]
-              .map((UserRole role) {
-            late final IconData icon;
-            late final Color iconColor;
+          items:
+              [UserRole.patient, UserRole.doctor, UserRole.staff].map((
+                UserRole role,
+              ) {
+                late final IconData icon;
+                late final Color iconColor;
 
-            switch (role) {
-              case UserRole.doctor:
-                icon = Icons.medical_information;
-                iconColor = Colors.blue; // Professional medical blue
-                break;
-              case UserRole.staff:
-                icon = Icons.medical_information_rounded; // Healthcare staff
-                iconColor = Colors.teal; // Healthcare teal
-                break;
-              case UserRole.patient:
-                icon = Icons.personal_injury_rounded; // Patient care
-                iconColor = Colors.orange; // Warm, friendly color
-                break;
-            }
+                switch (role) {
+                  case UserRole.doctor:
+                    icon = Icons.medical_information;
+                    iconColor = Colors.blue; // Professional medical blue
+                    break;
+                  case UserRole.staff:
+                    icon =
+                        Icons.medical_information_rounded; // Healthcare staff
+                    iconColor = Colors.teal; // Healthcare teal
+                    break;
+                  case UserRole.patient:
+                    icon = Icons.personal_injury_rounded; // Patient care
+                    iconColor = Colors.orange; // Warm, friendly color
+                    break;
+                }
 
-            return DropdownMenuItem<UserRole>(
-              value: role,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    icon,
-                    color: iconColor,
-                    size: 20,
+                return DropdownMenuItem<UserRole>(
+                  value: role,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(icon, color: iconColor, size: 20),
+                      SizedBox(width: 12),
+                      Text(
+                        role.name.toUpperCase(),
+                        style: TextStyle(
+                          color: AppColors.textPrimary,
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
                   ),
-                  SizedBox(width: 12),
-                  Text(
-                    role.name.toUpperCase(),
-                    style: TextStyle(
-                      color: AppColors.textPrimary,
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }).toList(),
+                );
+              }).toList(),
           onChanged: (UserRole? newValue) {
             cubit.updateRole(newValue ?? UserRole.patient);
           },
@@ -117,71 +109,76 @@ Future<String?> _showIdDialog(BuildContext context, UserRole role) {
   final controller = TextEditingController();
   return showDialog<String>(
     context: context,
-    builder: (context) => AlertDialog(
-      title: Text(
-        'Please enter your ${role.name} ID',
-        style: TextStyle(
-          color: AppColors.primary,
-          fontSize: 18.sp,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-      content: TextField(
-        controller: controller,
-        decoration: InputDecoration(
-          hintText: 'Enter ${role.name} ID',
-          prefixIcon: const Icon(Icons.badge_outlined),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
+    builder:
+        (context) => AlertDialog(
+          title: Text(
+            'Please enter your ${role.name} ID',
+            style: TextStyle(
+              color: AppColors.primary,
+              fontSize: 18.sp,
+              fontWeight: FontWeight.w600,
+            ),
           ),
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text(
-            'Cancel',
-            style: TextStyle(color: Colors.grey, fontSize: 16.sp),
+          content: TextField(
+            controller: controller,
+            decoration: InputDecoration(
+              hintText: 'Enter ${role.name} ID',
+              prefixIcon: const Icon(Icons.badge_outlined),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
           ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                'Cancel',
+                style: TextStyle(color: Colors.grey, fontSize: 16.sp),
+              ),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, controller.text),
+              style: TextButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
+              ),
+              child: Text(
+                'Verify',
+                style: TextStyle(color: Colors.white, fontSize: 16.sp),
+              ),
+            ),
+          ],
         ),
-        TextButton(
-          onPressed: () => Navigator.pop(context, controller.text),
-          style: TextButton.styleFrom(
-            backgroundColor: AppColors.primary,
-            padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
-          ),
-          child: Text(
-            'Verify',
-            style: TextStyle(color: Colors.white, fontSize: 16.sp),
-          ),
-        ),
-      ],
-    ),
   );
 }
 
 Widget _patientIdField(SignUpCubit cubit) {
   return Builder(
-    builder: (context) => Column(
-      children: [
-        SizedBox(height: AppHeight.h16.h),
-        ElevatedButton(
-          onPressed: () async {
-            final id = await _showIdDialog(context, cubit.selectedRole ?? UserRole.patient);
-            if (id != null) {
-              cubit.patientIdController.text = id;
-            }
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.white,
-            foregroundColor: AppColors.primary,
-            side: BorderSide(color: AppColors.primary),
-            padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
-          ),
-          child: Text('Enter ${cubit.selectedRole?.name ?? 'Patient'} ID'),
+    builder:
+        (context) => Column(
+          children: [
+            SizedBox(height: AppHeight.h16.h),
+            ElevatedButton(
+              onPressed: () async {
+                final id = await _showIdDialog(
+                  context,
+                  cubit.selectedRole ?? UserRole.patient,
+                );
+                if (id != null) {
+                  cubit.patientIdController.text = id;
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                foregroundColor: AppColors.primary,
+                side: BorderSide(color: AppColors.primary),
+                padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
+              ),
+              child: Text('Enter ${cubit.selectedRole?.name ?? 'Patient'} ID'),
+            ),
+          ],
         ),
-      ],
-    ),
   );
 }
 
@@ -204,24 +201,15 @@ class _RegisterFormState extends State<RegisterForm>
       duration: const Duration(milliseconds: 500),
     );
 
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.easeIn,
-      ),
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeIn),
     );
 
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, 0.5),
       end: Offset.zero,
     ).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.easeInOut,
-      ),
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
     );
     _animationController.forward();
   }
@@ -279,6 +267,7 @@ Widget _loginButton(SignUpCubit cubit, BuildContext context) {
       return CustomButton(
         isLoading: state.status == AuthStatus.submiting,
         onTap: () async {
+          // First validate the form
           if (!cubit.formKey.currentState!.validate()) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
@@ -289,8 +278,86 @@ Widget _loginButton(SignUpCubit cubit, BuildContext context) {
             return;
           }
 
-          // For patients, sign up directly
+          // Validate username specifically
+          final usernameError = Validator.validateUsername(
+            cubit.usernameController.text,
+          );
+          if (usernameError != null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(usernameError),
+                backgroundColor: Colors.red,
+              ),
+            );
+            return;
+          }
+
+          // Validate email specifically
+          final emailError = Validator.validateEmail(
+            cubit.emailController.text,
+          );
+          if (emailError != null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(emailError), backgroundColor: Colors.red),
+            );
+            return;
+          }
+
+          // Validate password specifically
+          final passwordError = Validator.validatePassword(
+            cubit.passwordController.text,
+          );
+          if (passwordError != null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(passwordError),
+                backgroundColor: Colors.red,
+              ),
+            );
+            return;
+          }
+
+          // Validate confirm password
+          final confirmPasswordError = Validator.validateConfirmPassword(
+            cubit.confirmPasswordController.text,
+            cubit.passwordController.text,
+          );
+          if (confirmPasswordError != null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(confirmPasswordError),
+                backgroundColor: Colors.red,
+              ),
+            );
+            return;
+          }
+
+          // Validate role selection
+          if (cubit.selectedRole == null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Please select your role'),
+                backgroundColor: Colors.red,
+              ),
+            );
+            return;
+          }
+
+          // Validate patient ID for patient role
           if (cubit.selectedRole == UserRole.patient) {
+            if (cubit.patientIdController.text.isEmpty ||
+                cubit.patientIdController.text.length < 4) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text(
+                    'Please enter a valid patient ID (minimum 4 characters)',
+                  ),
+                  backgroundColor: Colors.red,
+                ),
+              );
+              return;
+            }
+            // For patients, sign up directly after all validations pass
             cubit.signUp();
             return;
           }
@@ -298,6 +365,7 @@ Widget _loginButton(SignUpCubit cubit, BuildContext context) {
           // For doctor and staff roles, verify ID
           final String? verificationId = await showDialog<String>(
             context: context,
+            barrierDismissible: false, // Prevent dismissing by tapping outside
             builder: (ctx) {
               return AlertDialog(
                 shape: RoundedRectangleBorder(
@@ -318,6 +386,15 @@ Widget _loginButton(SignUpCubit cubit, BuildContext context) {
                     hint: 'Enter ${cubit.selectedRole?.name} ID',
                     prefixIcon: Icons.badge_outlined,
                     keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'ID is required';
+                      }
+                      if (value.length < 4) {
+                        return 'ID must be at least 4 characters';
+                      }
+                      return null;
+                    },
                   ),
                 ),
                 actions: [
@@ -333,16 +410,18 @@ Widget _loginButton(SignUpCubit cubit, BuildContext context) {
                   ),
                   ElevatedButton(
                     onPressed: () {
-                      final validId = cubit.selectedRole == UserRole.doctor
-                          ? '1112'
-                          : '1113';
+                      final validId =
+                          cubit.selectedRole == UserRole.doctor
+                              ? '1112'
+                              : '1113';
                       if (cubit.doctorIdController.text == validId) {
                         Navigator.pop(context, cubit.doctorIdController.text);
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content:
-                                Text('Invalid ${cubit.selectedRole?.name} ID'),
+                            content: Text(
+                              'Invalid ${cubit.selectedRole?.name} ID',
+                            ),
                             backgroundColor: Colors.red,
                             behavior: SnackBarBehavior.floating,
                             shape: RoundedRectangleBorder(
@@ -359,7 +438,9 @@ Widget _loginButton(SignUpCubit cubit, BuildContext context) {
                         borderRadius: BorderRadius.circular(10),
                       ),
                       padding: EdgeInsets.symmetric(
-                          horizontal: 20.w, vertical: 10.h),
+                        horizontal: 20.w,
+                        vertical: 10.h,
+                      ),
                     ),
                     child: Text(
                       'Verify',
@@ -399,15 +480,20 @@ CustomInputField _passwordTextField(SignUpCubit cubit, SignUpState state) {
 }
 
 CustomInputField _confirmPasswordTextField(
-    SignUpCubit cubit, SignUpState state) {
+  SignUpCubit cubit,
+  SignUpState state,
+) {
   return CustomInputField(
     obscureText: true,
     prefixIcon: Icons.lock,
     hint: AppStrings.confirmPasswordHint,
     controller: cubit.confirmPasswordController,
     isPasswordVisible: state.isPasswordVisible,
-    validator: (value) => Validator.validateConfirmPassword(
-        value!, cubit.passwordController.text),
+    validator:
+        (value) => Validator.validateConfirmPassword(
+          value!,
+          cubit.passwordController.text,
+        ),
     toggelPasswordVisibility: () => cubit.togglePasswordVisibility(),
   );
 }

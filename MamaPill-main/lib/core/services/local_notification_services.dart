@@ -7,6 +7,7 @@ import 'package:mama_pill/features/medicine/domain/repositories/medicine_reposit
 import 'package:get_it/get_it.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'dart:io' show Platform;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LocalNotificationServices {
   static FlutterLocalNotificationsPlugin notification =
@@ -168,6 +169,16 @@ class LocalNotificationServices {
     int? dose,
   }) async {
     try {
+      // Check if notifications are enabled in settings
+      final prefs = await SharedPreferences.getInstance();
+      final notificationsEnabled =
+          prefs.getBool('notifications_enabled') ?? true;
+
+      if (!notificationsEnabled) {
+        print('Notifications are disabled in settings, skipping schedule');
+        return;
+      }
+
       print(
         'Scheduling notification for $title at ${scheduledDates.length} times',
       );

@@ -12,11 +12,13 @@ class EmptyTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: AppWidth.screenWidth * 0.92,
+      height: 200.h,
       decoration: BoxDecoration(
         color: AppColors.primary.withOpacity(0.1),
         borderRadius: BorderRadius.circular(20).w,
       ),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Padding(
             padding: AppPadding.small.w,
@@ -29,8 +31,8 @@ class EmptyTile extends StatelessWidget {
           Text(
             message,
             style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                  color: AppColors.disabled.withOpacity(0.75),
-                ),
+              color: AppColors.disabled.withOpacity(0.75),
+            ),
           ),
         ],
       ),

@@ -134,8 +134,21 @@ class _SettingsViewState extends State<SettingsView>
         await LocalNotificationServices.init(initSchedule: true);
       }
     } else {
-      // Cancel all notifications
+      // Cancel all notifications and clear any pending schedules
       await LocalNotificationServices.notification.cancelAll();
+
+      // Also cancel any scheduled notifications
+      final pendingNotifications =
+          await LocalNotificationServices.notification
+              .pendingNotificationRequests();
+      for (var notification in pendingNotifications) {
+        await LocalNotificationServices.notification.cancel(notification.id);
+      }
+
+      // Clear any stored notification data
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('notifications_enabled', false);
+
       setState(() {
         _notificationsEnabled = false;
       });
