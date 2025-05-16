@@ -62,27 +62,27 @@ class MedicineForm extends StatelessWidget {
       providers: [
         BlocProvider(
           create: (context) {
-            final cubit = sl<MedicineFormCubit>();
-            if (existingMedicine != null) {
-              cubit.medicineNameController.text = existingMedicine!.medicine;
-              while (cubit.state.dose < existingMedicine!.dose) {
-                cubit.incrementDose();
-              }
-              while (cubit.state.type != existingMedicine!.type) {
-                cubit.toggleMedicineType();
-              }
-              for (var day in existingMedicine!.schedule.days) {
-                cubit.toggleDaySelection(day);
-              }
-              for (var time in existingMedicine!.schedule.times) {
-                cubit.addTime(time);
-              }
-              while (cubit.state.weeksCount <
-                  existingMedicine!.schedule.weeksCount) {
-                cubit.incrementWeeksCount();
-              }
+          final cubit = sl<MedicineFormCubit>();
+          if (existingMedicine != null) {
+            cubit.medicineNameController.text = existingMedicine!.medicine;
+            while (cubit.state.dose < existingMedicine!.dose) {
+              cubit.incrementDose();
             }
-            return cubit;
+            while (cubit.state.type != existingMedicine!.type) {
+              cubit.toggleMedicineType();
+            }
+            for (var day in existingMedicine!.schedule.days) {
+              cubit.toggleDaySelection(day);
+            }
+            for (var time in existingMedicine!.schedule.times) {
+              cubit.addTime(time);
+            }
+            while (cubit.state.weeksCount <
+                existingMedicine!.schedule.weeksCount) {
+              cubit.incrementWeeksCount();
+            }
+          }
+          return cubit;
           },
         ),
         BlocProvider(create: (context) => sl<MedicineScheduleBloc>()),
@@ -97,13 +97,13 @@ class MedicineForm extends StatelessWidget {
               title: 'Success',
               message: 'Medicine added successfully',
             );
-
+            
             try {
               context.read<CalendarCubit>().changeSelectedDate(DateTime.now());
             } catch (e) {
               // If not found, do nothing
             }
-
+            
             Future.delayed(const Duration(milliseconds: 500), () {
               if (context.mounted) {
                 Navigator.of(context).popUntil((route) => route.isFirst);
@@ -122,7 +122,7 @@ class MedicineForm extends StatelessWidget {
             final MedicineFormCubit medicineFormCubit =
                 context.read<MedicineFormCubit>();
             return BlocBuilder<MedicineScheduleBloc, MedicineScheduleState>(
-              builder: (context, medicineScheduleState) {
+                builder: (context, medicineScheduleState) {
                 return Material(
                   color: Colors.transparent,
                   child: Container(
@@ -143,10 +143,10 @@ class MedicineForm extends StatelessWidget {
                       ],
                     ),
                     child: SafeArea(
-                      child: Column(
+                child: Column(
                         mainAxisSize: MainAxisSize.min,
-                        children: [
-                          _dragLable(),
+                  children: [
+                    _dragLable(),
                           Expanded(
                             child: SingleChildScrollView(
                               physics: const ClampingScrollPhysics(),
@@ -162,15 +162,15 @@ class MedicineForm extends StatelessWidget {
                                   children: [
                                     _buildHeader(context, medicineFormCubit),
                                     SizedBox(height: 24.h),
-                                    _medicineNameTextField(context),
+                    _medicineNameTextField(context),
                                     SizedBox(height: 16.h),
-                                    _doseCounter(context),
+                    _doseCounter(context),
                                     SizedBox(height: 16.h),
-                                    _weeksCounter(context),
+                    _weeksCounter(context),
                                     SizedBox(height: 16.h),
-                                    _weekdaysWidget(context),
+                    _weekdaysWidget(context),
                                     SizedBox(height: 16.h),
-                                    _timeIntervalsWidget(
+                    _timeIntervalsWidget(
                                       context,
                                       medicineFormCubit,
                                       medicineFormState,
@@ -207,7 +207,7 @@ class MedicineForm extends StatelessWidget {
 
     return Container(
       padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 20.w),
-      decoration: BoxDecoration(
+        decoration: BoxDecoration(
         color: medicineTypeColor.withOpacity(0.1),
         borderRadius: BorderRadius.circular(16.r),
       ),
@@ -230,15 +230,15 @@ class MedicineForm extends StatelessWidget {
           ),
           SizedBox(width: 16.w),
           Expanded(
-            child: Column(
+          child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
+            children: [
+              Text(
                   existingMedicine != null
                       ? 'Edit Medicine'
                       : 'Add New Medicine',
                   style: theme.textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.bold,
                     color: medicineTypeColor,
                   ),
                 ),
@@ -265,16 +265,16 @@ class MedicineForm extends StatelessWidget {
   ) {
     return Container(
       padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 16.h),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
             color: Colors.black.withOpacity(0.1),
             blurRadius: 8,
             offset: Offset(0, -2),
-          ),
-        ],
-      ),
+                ),
+              ],
+            ),
       child: SafeArea(
         child: SizedBox(
           width: double.infinity,
@@ -282,9 +282,9 @@ class MedicineForm extends StatelessWidget {
           child:
               medicineScheduleState.saveStatus == RequestStatus.loading
                   ? ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      shape: RoundedRectangleBorder(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12.r),
                       ),
                       elevation: 2,
@@ -323,9 +323,9 @@ class MedicineForm extends StatelessWidget {
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                  ),
-        ),
-      ),
+              ),
+            ),
+          ),
     );
   }
 
@@ -334,130 +334,130 @@ class MedicineForm extends StatelessWidget {
     MedicineFormCubit medicineFormCubit,
     MedicineFormState medicineFormState,
   ) async {
-    // Validate input
+        // Validate input
     if (medicineFormCubit.medicineNameController.text.isEmpty) {
-      TopNotificationUtils.showErrorNotification(
-        context,
-        title: 'Validation Error',
-        message: 'Please enter a medicine name',
-      );
-      return;
-    }
+          TopNotificationUtils.showErrorNotification(
+            context,
+            title: 'Validation Error',
+            message: 'Please enter a medicine name',
+          );
+          return;
+        }
 
     if (medicineFormState.selectedDays.isEmpty) {
-      TopNotificationUtils.showErrorNotification(
-        context,
-        title: 'Validation Error',
-        message: 'Please select at least one day',
-      );
-      return;
-    }
+          TopNotificationUtils.showErrorNotification(
+            context,
+            title: 'Validation Error',
+            message: 'Please select at least one day',
+          );
+          return;
+        }
 
     if (medicineFormState.selectedTimes.isEmpty) {
-      TopNotificationUtils.showErrorNotification(
-        context,
-        title: 'Validation Error',
-        message: 'Please select at least one time',
-      );
-      return;
-    }
+          TopNotificationUtils.showErrorNotification(
+            context,
+            title: 'Validation Error',
+            message: 'Please select at least one time',
+          );
+          return;
+        }
 
-    // Get current user role and ID
-    final authState = context.read<AuthBloc>().state;
-    print(
+        // Get current user role and ID
+        final authState = context.read<AuthBloc>().state;
+        print(
       'Adding medicine schedule as user with role: ${authState.user.role.name}',
     );
-    print('Current user ID: ${authState.user.id}');
+        print('Current user ID: ${authState.user.id}');
 
-    // Show patient ID dialog for doctors
-    String? actualPatientId = await showDialog<String>(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        final patientIdController = TextEditingController(text: patientId);
-        return AlertDialog(
-          title: Text('Enter Patient ID'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('Please enter the patient ID for this medicine:'),
-              SizedBox(height: 16),
-              CustomInputField(
-                controller: patientIdController,
-                hint: 'Patient ID',
-                prefixIcon: Icons.person,
-                keyboardType: TextInputType.text,
-                validator: (value) => Validator.validateField(value),
+        // Show patient ID dialog for doctors
+        String? actualPatientId = await showDialog<String>(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            final patientIdController = TextEditingController(text: patientId);
+            return AlertDialog(
+              title: Text('Enter Patient ID'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text('Please enter the patient ID for this medicine:'),
+                  SizedBox(height: 16),
+                  CustomInputField(
+                    controller: patientIdController,
+                    hint: 'Patient ID',
+                    prefixIcon: Icons.person,
+                    keyboardType: TextInputType.text,
+                    validator: (value) => Validator.validateField(value),
+                  ),
+                ],
               ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                if (patientIdController.text.isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Please enter a patient ID'),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
-                  return;
-                }
-                Navigator.pop(context, patientIdController.text);
-              },
-              child: Text('Confirm'),
-            ),
-          ],
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text('Cancel'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    if (patientIdController.text.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Please enter a patient ID'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                      return;
+                    }
+                    Navigator.pop(context, patientIdController.text);
+                  },
+                  child: Text('Confirm'),
+                ),
+              ],
+            );
+          },
         );
-      },
-    );
 
     if (actualPatientId == null || actualPatientId.isEmpty) return;
 
-    print('Adding medicine schedule for patient ID: $actualPatientId');
+        print('Adding medicine schedule for patient ID: $actualPatientId');
 
-    // Create or update medicine schedule
-    final now = DateTime.now();
-    final startDate = DateTime(now.year, now.month, now.day);
-    final medicineSchedule = MedicineSchedule(
+        // Create or update medicine schedule
+        final now = DateTime.now();
+        final startDate = DateTime(now.year, now.month, now.day);
+        final medicineSchedule = MedicineSchedule(
       id: existingMedicine?.id ?? '',
-      index: index,
+          index: index,
       userId: authState.user.id!,
       patientId: actualPatientId,
       medicine: medicineFormCubit.medicineNameController.text,
       dose: medicineFormState.dose,
       type: medicineFormState.type,
-      schedule: Schedule(
+          schedule: Schedule(
         days: medicineFormState.selectedDays,
         times: medicineFormState.selectedTimes,
         weeksCount: medicineFormState.weeksCount,
-        startDate: existingMedicine?.schedule.startDate ?? startDate,
+            startDate: existingMedicine?.schedule.startDate ?? startDate,
         type:
             medicineFormState.weeksCount > 1
                 ? ScheduleType.weekly
                 : ScheduleType.daily,
-      ),
-    );
+          ),
+        );
 
     context.read<MedicineScheduleBloc>().add(
       MedicineScheduleAdded(medicineSchedule: medicineSchedule),
     );
 
-    // Check if notifications are enabled before scheduling
-    final prefs = await SharedPreferences.getInstance();
+        // Check if notifications are enabled before scheduling
+        final prefs = await SharedPreferences.getInstance();
     final notificationsEnabled = prefs.getBool('notifications_enabled') ?? true;
 
-    if (notificationsEnabled) {
+        if (notificationsEnabled) {
       context.read<NotificationBloc>().add(
-        WeeklyNotificationScheduled(
-          notification: NotificationData(
-            id: index,
-            title: 'Medicine Time',
-            body: AppMessages.getMedicineNotificationMessage(
+            WeeklyNotificationScheduled(
+              notification: NotificationData(
+                id: index,
+                title: 'Medicine Time',
+                body: AppMessages.getMedicineNotificationMessage(
               medicineFormState.dose,
               medicineFormCubit.medicineNameController.text,
               medicineFormState.type.name,

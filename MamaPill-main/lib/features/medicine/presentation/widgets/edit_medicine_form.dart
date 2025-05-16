@@ -41,11 +41,11 @@ class _EditDispenserFormState extends State<EditDispenserForm> {
     _medicineFormCubit.medicineNameController.text = widget.medicine.medicine;
     _medicineFormCubit.emit(
       _medicineFormCubit.state.copyWith(
-        type: widget.medicine.type,
-        dose: widget.medicine.dose,
-        selectedDays: widget.medicine.schedule.days,
-        selectedTimes: widget.medicine.schedule.times,
-        weeksCount: widget.medicine.schedule.weeksCount,
+      type: widget.medicine.type,
+      dose: widget.medicine.dose,
+      selectedDays: widget.medicine.schedule.days,
+      selectedTimes: widget.medicine.schedule.times,
+      weeksCount: widget.medicine.schedule.weeksCount,
       ),
     );
   }
@@ -75,7 +75,7 @@ class _EditDispenserFormState extends State<EditDispenserForm> {
               title: 'Success',
               message: 'Medicine updated successfully',
             );
-
+            
             // Close the cubit before navigation
             _medicineFormCubit.close();
 
@@ -95,7 +95,7 @@ class _EditDispenserFormState extends State<EditDispenserForm> {
         child: BlocBuilder<MedicineFormCubit, MedicineFormState>(
           builder: (context, medicineFormState) {
             return BlocBuilder<MedicineScheduleBloc, MedicineScheduleState>(
-              builder: (context, medicineScheduleState) {
+                builder: (context, medicineScheduleState) {
                 return WillPopScope(
                   onWillPop: () async {
                     // Close the cubit before popping
@@ -124,7 +124,7 @@ class _EditDispenserFormState extends State<EditDispenserForm> {
                       child: SafeArea(
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
-                          children: [
+                children: [
                             _dragLable(),
                             Expanded(
                               child: SingleChildScrollView(
@@ -133,51 +133,51 @@ class _EditDispenserFormState extends State<EditDispenserForm> {
                                   padding: EdgeInsets.symmetric(
                                     horizontal: 16.w,
                                     vertical: 8.h,
-                                  ),
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
                                     crossAxisAlignment:
                                         CrossAxisAlignment.stretch,
-                                    children: [
-                                      Container(
-                                        padding: EdgeInsets.symmetric(
+                      children: [
+                        Container(
+                          padding: EdgeInsets.symmetric(
                                           vertical: 16.h,
                                           horizontal: 20.w,
                                         ),
-                                        decoration: BoxDecoration(
+                          decoration: BoxDecoration(
                                           color: medicineTypeColor.withOpacity(
                                             0.1,
                                           ),
                                           borderRadius: BorderRadius.circular(
                                             16.r,
                                           ),
-                                        ),
-                                        child: Row(
-                                          children: [
-                                            Container(
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
                                               width: 48.w,
                                               height: 48.h,
-                                              decoration: BoxDecoration(
+                                decoration: BoxDecoration(
                                                 color: medicineTypeColor
                                                     .withOpacity(0.2),
-                                                shape: BoxShape.circle,
-                                              ),
-                                              child: Center(
-                                                child: ImageIcon(
-                                                  AssetImage(medicineTypeIcon),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Center(
+                                  child: ImageIcon(
+                                    AssetImage(medicineTypeIcon),
                                                   size: 24.sp,
-                                                  color: medicineTypeColor,
-                                                ),
-                                              ),
-                                            ),
+                                    color: medicineTypeColor,
+                                  ),
+                                ),
+                              ),
                                             SizedBox(width: 16.w),
-                                            Expanded(
+                              Expanded(
                                               child: Column(
                                                 crossAxisAlignment:
                                                     CrossAxisAlignment.start,
                                                 children: [
                                                   Text(
-                                                    'Edit Medicine',
+                                  'Edit Medicine',
                                                     style: theme
                                                         .textTheme
                                                         .titleLarge
@@ -197,14 +197,14 @@ class _EditDispenserFormState extends State<EditDispenserForm> {
                                                         ?.copyWith(
                                                           color:
                                                               Colors.grey[600],
-                                                        ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                            ],
+                          ),
+                        ),
                                       SizedBox(height: 24.h),
                                       _medicineNameTextField(context),
                                       SizedBox(height: 16.h),
@@ -220,9 +220,9 @@ class _EditDispenserFormState extends State<EditDispenserForm> {
                                         medicineFormState,
                                       ),
                                       SizedBox(height: 100.h),
-                                    ],
-                                  ),
-                                ),
+                      ],
+                    ),
+                  ),
                               ),
                             ),
                             Container(
@@ -243,12 +243,12 @@ class _EditDispenserFormState extends State<EditDispenserForm> {
                                 ],
                               ),
                               child: SafeArea(
-                                child: SizedBox(
-                                  width: double.infinity,
+                      child: SizedBox(
+                        width: double.infinity,
                                   height: 48.h,
                                   child:
                                       medicineScheduleState.saveStatus ==
-                                              RequestStatus.loading
+                                RequestStatus.loading
                                           ? ElevatedButton(
                                             style: ElevatedButton.styleFrom(
                                               backgroundColor:
@@ -272,74 +272,74 @@ class _EditDispenserFormState extends State<EditDispenserForm> {
                                               ),
                                             ),
                                           )
-                                          : ElevatedButton(
-                                            style: ElevatedButton.styleFrom(
+                            : ElevatedButton(
+                                style: ElevatedButton.styleFrom(
                                               backgroundColor:
                                                   AppColors.primary,
                                               shape: RoundedRectangleBorder(
                                                 borderRadius:
                                                     BorderRadius.circular(12.r),
                                               ),
-                                              elevation: 2,
-                                            ),
-                                            onPressed: () async {
-                                              // Validate input
-                                              if (_medicineFormCubit
+                                  elevation: 2,
+                                ),
+                                onPressed: () async {
+                                  // Validate input
+                                  if (_medicineFormCubit
                                                   .medicineNameController
                                                   .text
                                                   .isEmpty) {
-                                                TopNotificationUtils.showErrorNotification(
-                                                  context,
-                                                  title: 'Validation Error',
+                                    TopNotificationUtils.showErrorNotification(
+                                      context,
+                                      title: 'Validation Error',
                                                   message:
                                                       'Please enter a medicine name',
-                                                );
-                                                return;
-                                              }
+                                    );
+                                    return;
+                                  }
 
                                               if (medicineFormState
                                                   .selectedDays
                                                   .isEmpty) {
-                                                TopNotificationUtils.showErrorNotification(
-                                                  context,
-                                                  title: 'Validation Error',
+                                    TopNotificationUtils.showErrorNotification(
+                                      context,
+                                      title: 'Validation Error',
                                                   message:
                                                       'Please select at least one day',
-                                                );
-                                                return;
-                                              }
+                                    );
+                                    return;
+                                  }
 
                                               if (medicineFormState
                                                   .selectedTimes
                                                   .isEmpty) {
-                                                TopNotificationUtils.showErrorNotification(
-                                                  context,
-                                                  title: 'Validation Error',
-                                                  message:
-                                                      'Please select at least one time',
-                                                );
-                                                return;
-                                              }
+                                    TopNotificationUtils.showErrorNotification(
+                                      context,
+                                      title: 'Validation Error',
+                                      message:
+                                          'Please select at least one time',
+                                    );
+                                    return;
+                                  }
 
-                                              final now = DateTime.now();
+                                  final now = DateTime.now();
                                               final startDate =
                                                   widget
                                                               .medicine
                                                               .schedule
                                                               .startDate !=
-                                                          null
-                                                      ? DateTime(
+                                          null
+                                      ? DateTime(
                                                         widget
                                                             .medicine
                                                             .schedule
                                                             .startDate!
-                                                            .year,
+                                              .year,
                                                         widget
                                                             .medicine
                                                             .schedule
                                                             .startDate!
-                                                            .month,
-                                                        widget
+                                              .month,
+                                          widget
                                                             .medicine
                                                             .schedule
                                                             .startDate!
@@ -351,8 +351,8 @@ class _EditDispenserFormState extends State<EditDispenserForm> {
                                                         now.day,
                                                       );
 
-                                              // Create updated medicine schedule with existing ID
-                                              final schedule = ScheduleModel(
+                                  // Create updated medicine schedule with existing ID
+                                  final schedule = ScheduleModel(
                                                 days:
                                                     medicineFormState
                                                         .selectedDays,
@@ -362,12 +362,12 @@ class _EditDispenserFormState extends State<EditDispenserForm> {
                                                 weeksCount:
                                                     medicineFormState
                                                         .weeksCount,
-                                                startDate: startDate,
-                                              );
+                                    startDate: startDate,
+                                  );
 
                                               final updatedMedicine =
                                                   MedicineSchedule(
-                                                    id: widget.medicine.id,
+                                    id: widget.medicine.id,
                                                     index:
                                                         widget.medicine.index,
                                                     userId:
@@ -384,61 +384,61 @@ class _EditDispenserFormState extends State<EditDispenserForm> {
                                                         medicineFormState.type,
                                                     dose:
                                                         medicineFormState.dose,
-                                                    schedule: schedule,
-                                                  );
+                                    schedule: schedule,
+                                  );
 
-                                              // Cancel old notification
+                                  // Cancel old notification
                                               context
                                                   .read<NotificationBloc>()
                                                   .add(
-                                                    NotificationCanceled(
-                                                      id: widget.medicine.index,
+                                        NotificationCanceled(
+                                          id: widget.medicine.index,
                                                       schedule:
                                                           widget
                                                               .medicine
                                                               .schedule,
-                                                    ),
-                                                  );
+                                        ),
+                                      );
 
-                                              // Update medicine in Firestore
+                                  // Update medicine in Firestore
                                               context
                                                   .read<MedicineScheduleBloc>()
                                                   .add(
-                                                    MedicineScheduleAdded(
+                                        MedicineScheduleAdded(
                                                       medicineSchedule:
                                                           updatedMedicine,
-                                                    ),
-                                                  );
+                                        ),
+                                      );
 
-                                              // Schedule new notification
-                                              context.read<NotificationBloc>().add(
-                                                WeeklyNotificationScheduled(
-                                                  notification: NotificationData(
-                                                    id: updatedMedicine.index,
-                                                    title: 'Medicine Reminder',
+                                  // Schedule new notification
+                                  context.read<NotificationBloc>().add(
+                                        WeeklyNotificationScheduled(
+                                          notification: NotificationData(
+                                            id: updatedMedicine.index,
+                                            title: 'Medicine Reminder',
                                                     body:
                                                         'Time to take ${updatedMedicine.medicine}',
                                                     schedule:
                                                         updatedMedicine
                                                             .schedule,
                                                     dose: updatedMedicine.dose,
-                                                  ),
-                                                ),
-                                              );
-                                            },
-                                            child: Text(
-                                              'Save Changes',
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 16.sp,
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                            ),
                                           ),
+                                        ),
+                                      );
+                                },
+                                child: Text(
+                                  'Save Changes',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16.sp,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
+                      ),
+                    ),
+                  ),
+                ],
                         ),
                       ),
                     ),
@@ -504,13 +504,13 @@ class _EditDispenserFormState extends State<EditDispenserForm> {
     final medcineFormState = medcineFormCubit.state;
 
     if (medcineFormState.type == MedicineType.liquid) {
-      return CustomInputCard(
-        label: 'Dose',
+    return CustomInputCard(
+      label: 'Dose',
         margin: EdgeInsets.zero,
         content: Row(
           mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
             Text(
               '${medcineFormState.dose}',
               style: textTheme.bodyMedium?.copyWith(
@@ -573,7 +573,7 @@ class _EditDispenserFormState extends State<EditDispenserForm> {
           children: [
             Text(
               '${medcineFormState.dose}',
-              style: textTheme.bodyMedium?.copyWith(
+                      style: textTheme.bodyMedium?.copyWith(
                 fontSize: 15.sp,
                 fontWeight: FontWeight.bold,
               ),
@@ -585,9 +585,9 @@ class _EditDispenserFormState extends State<EditDispenserForm> {
                 color: AppColors.textPrimary,
                 fontWeight: FontWeight.bold,
                 fontSize: 14.sp,
-              ),
-            ),
-          ],
+                    ),
+                  ),
+                ],
         ),
         leading: GestureDetector(
           onTap: () => medcineFormCubit.decrementDose(),
@@ -655,8 +655,8 @@ class _EditDispenserFormState extends State<EditDispenserForm> {
   }
 
   Widget _weeksCounter(BuildContext context) {
-    return BlocBuilder<MedicineFormCubit, MedicineFormState>(
-      builder: (context, state) {
+          return BlocBuilder<MedicineFormCubit, MedicineFormState>(
+            builder: (context, state) {
         return Container(
           margin: EdgeInsets.zero,
           decoration: BoxDecoration(
@@ -684,7 +684,7 @@ class _EditDispenserFormState extends State<EditDispenserForm> {
                   ),
                 ),
                 Row(
-                  children: [
+                children: [
                     Container(
                       decoration: BoxDecoration(
                         color:
@@ -693,15 +693,15 @@ class _EditDispenserFormState extends State<EditDispenserForm> {
                                 : Colors.grey[100],
                         shape: BoxShape.circle,
                       ),
-                      child: IconButton(
+                    child: IconButton(
                         onPressed:
                             state.weeksCount > 1
                                 ? () {
                                   context
                                       .read<MedicineFormCubit>()
                                       .decrementWeeksCount();
-                                }
-                                : null,
+                            }
+                          : null,
                         icon: Icon(
                           Icons.remove,
                           color:
@@ -728,8 +728,8 @@ class _EditDispenserFormState extends State<EditDispenserForm> {
                         color: AppColors.primary.withOpacity(0.1),
                         shape: BoxShape.circle,
                       ),
-                      child: IconButton(
-                        onPressed: () {
+                    child: IconButton(
+                      onPressed: () {
                           context
                               .read<MedicineFormCubit>()
                               .incrementWeeksCount();
@@ -817,8 +817,8 @@ class _EditDispenserFormState extends State<EditDispenserForm> {
                           ),
                         ],
                       ),
-                    );
-                  }).toList(),
+                );
+              }).toList(),
             ),
           ),
         Padding(
@@ -836,12 +836,12 @@ class _EditDispenserFormState extends State<EditDispenserForm> {
               onPressed: () => _showTimePicker(context, medcineFormCubit),
               icon: Icon(Icons.add_alarm, color: Colors.white, size: 20.sp),
               label: Text(
-                'Add Time',
-                style: TextStyle(
+                    'Add Time',
+                    style: TextStyle(
                   color: Colors.white,
-                  fontSize: 16.sp,
+                      fontSize: 16.sp,
                   fontWeight: FontWeight.w500,
-                ),
+                  ),
               ),
             ),
           ),
@@ -873,7 +873,7 @@ class _EditDispenserFormState extends State<EditDispenserForm> {
               bodyMedium: Theme.of(
                 context,
               ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
-            ),
+                ),
           ),
           child: child!,
         );
