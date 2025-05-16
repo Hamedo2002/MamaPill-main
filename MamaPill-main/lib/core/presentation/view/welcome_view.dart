@@ -81,31 +81,19 @@ class _WelcomeViewState extends State<WelcomeView>
       begin: const Offset(0, 0.5),
       end: Offset.zero,
     ).animate(
-      CurvedAnimation(
-        parent: _animationController!,
-        curve: Curves.elasticOut,
-      ),
+      CurvedAnimation(parent: _animationController!, curve: Curves.elasticOut),
     );
 
     _scaleAnimation = Tween<double>(begin: 0.3, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _animationController!,
-        curve: Curves.elasticOut,
-      ),
+      CurvedAnimation(parent: _animationController!, curve: Curves.elasticOut),
     );
 
     _borderRotation = Tween<double>(begin: 0.0, end: math.pi * 2).animate(
-      CurvedAnimation(
-        parent: _borderController!,
-        curve: Curves.linear,
-      ),
+      CurvedAnimation(parent: _borderController!, curve: Curves.linear),
     );
 
     _particleOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _particleController!,
-        curve: Curves.easeInOut,
-      ),
+      CurvedAnimation(parent: _particleController!, curve: Curves.easeInOut),
     );
 
     _animationController!.forward();
@@ -129,11 +117,7 @@ class _WelcomeViewState extends State<WelcomeView>
         _scaleAnimation == null ||
         _borderRotation == null ||
         _particleOpacity == null) {
-      return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     TextTheme textTheme = Theme.of(context).textTheme;
@@ -152,14 +136,14 @@ class _WelcomeViewState extends State<WelcomeView>
           ),
         ),
         child: SafeArea(
-        minimum: const EdgeInsets.symmetric(vertical: 36, horizontal: 14).w,
+          minimum: const EdgeInsets.symmetric(vertical: 36, horizontal: 14).w,
           child: FadeTransition(
             opacity: _fadeAnimation!,
             child: SlideTransition(
               position: _slideAnimation!,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
                   ScaleTransition(
                     scale: _scaleAnimation!,
                     child: Stack(
@@ -227,7 +211,7 @@ class _WelcomeViewState extends State<WelcomeView>
                             child: Container(
                               color: AppColors.white.withOpacity(0.98),
                               child: SvgImage(
-              assetName: AppAssets.welcome,
+                                assetName: AppAssets.welcome,
                                 width: 320.w,
                               ),
                             ),
@@ -235,14 +219,14 @@ class _WelcomeViewState extends State<WelcomeView>
                         ),
                       ],
                     ),
-            ),
-            Column(
-              children: [
+                  ),
+                  Column(
+                    children: [
                       Container(
                         padding: EdgeInsets.symmetric(horizontal: 20.w),
                         child: Text(
-                  AppStrings.welcomeTitle,
-                  textAlign: TextAlign.center,
+                          AppStrings.welcomeTitle,
+                          textAlign: TextAlign.center,
                           style: textTheme.titleLarge?.copyWith(
                             fontSize: 36.sp,
                             fontWeight: FontWeight.bold,
@@ -258,28 +242,28 @@ class _WelcomeViewState extends State<WelcomeView>
                             ],
                           ),
                         ),
-                ),
+                      ),
                       SizedBox(height: AppHeight.h8.h),
                       Container(
                         padding: EdgeInsets.symmetric(horizontal: 24.w),
-                  child: Text(
-                    AppStrings.welcomeDescription,
-                    textAlign: TextAlign.center,
+                        child: Text(
+                          AppStrings.welcomeDescription,
+                          textAlign: TextAlign.center,
                           style: textTheme.titleSmall?.copyWith(
                             color: AppColors.textSecondary,
                             fontSize: 17.sp,
                             height: 1.4,
                             letterSpacing: 0.3,
                           ),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
-            ),
                   Container(
                     margin: EdgeInsets.only(bottom: 16.h),
                     child: _authButtonRow(context),
                   ),
-          ],
+                ],
               ),
             ),
           ),
@@ -305,16 +289,16 @@ Widget _authButtonRow(BuildContext context) {
     child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
-        Flexible(
+        Expanded(
           child: CustomButton(
-            label: AppStrings.registerTitle,
+            label: 'Create Account',
             onTap: () => context.pushNamed(AppRoutes.register.name),
             backgroundColor: AppColors.primary,
             textColor: AppColors.white,
             margin: EdgeInsets.zero,
           ),
         ),
-        Flexible(
+        Expanded(
           child: CustomButton(
             label: AppStrings.login,
             onTap: () => context.pushNamed(AppRoutes.login.name),
@@ -348,23 +332,18 @@ class ParticlePainter extends CustomPainter {
   final List<Particle> particles;
   final double opacity;
 
-  ParticlePainter({
-    required this.particles,
-    required this.opacity,
-  });
+  ParticlePainter({required this.particles, required this.opacity});
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = AppColors.primary.withOpacity(0.3 * opacity)
-      ..style = PaintingStyle.fill;
+    final paint =
+        Paint()
+          ..color = AppColors.primary.withOpacity(0.3 * opacity)
+          ..style = PaintingStyle.fill;
 
     for (var particle in particles) {
       canvas.drawCircle(
-        Offset(
-          size.width / 2 + particle.x,
-          size.height / 2 + particle.y,
-        ),
+        Offset(size.width / 2 + particle.x, size.height / 2 + particle.y),
         particle.size,
         paint,
       );
